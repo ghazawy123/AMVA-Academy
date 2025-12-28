@@ -72,9 +72,9 @@ function LandingPage({
     {
       id: 1,
       type: 'image',
-      title: lang === 'en' ? 'Training Session' : 'جلسة تدريب',
-      caption: lang === 'en' ? 'Intensive practice session' : 'جلسة تمرين مكثفة',
-      url: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800',
+      title: lang === 'en' ? 'Our Founder' : 'مؤسسنا',
+      caption: lang === 'en' ? 'You are the next CHAMP' : 'أنت البطل القادم',
+      thumbnail: '/images/gallery-image-2.JPEG',
       category: 'training'
     },
     {
