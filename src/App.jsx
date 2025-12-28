@@ -442,12 +442,12 @@ function LandingPage({
             {galleryItems.map(item => (
               <div key={item.id} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition">
                {item.type === 'image' && (
-  <img 
-    src={item.url || item.thumbnail}  ← Now accepts both!
-    alt={item.title}
-    className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
-  />
-)}
+        <img 
+          src={item.url || item.thumbnail}
+          alt={item.title}
+          className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
+        />
+      )}
                 {item.type === 'youtube' && (
                   <div className="aspect-video">
                     <iframe 
