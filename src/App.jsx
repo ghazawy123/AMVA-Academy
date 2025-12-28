@@ -242,7 +242,7 @@ function LandingPage({
                 <p className="text-white mt-2">{lang === 'en' ? 'Years' : 'سنوات'}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.championships}</p>
+                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.locations}</p>
                 <p className="text-white mt-2">{lang === 'en' ? 'Locations' : 'مواقع'}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
