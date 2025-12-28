@@ -106,8 +106,8 @@ function LandingPage({
       type: 'instagram',
       title: lang === 'en' ? 'Training Video' : 'فيديو تدريب',
       caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
-      url: 'https://www.instagram.com/reel/CwpmagXrfrj/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==',
-      thumbnail: 'https://www.instagram.com/reel/CwpmagXrfrj/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==/media/?size=l',
+      url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
+      thumbnail: 'https://www.instagram.com/reel/CwpmagXrfrj//media/?size=l',
       category: 'videos'
     }
   ]);
