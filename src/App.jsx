@@ -441,13 +441,13 @@ function LandingPage({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryItems.map(item => (
               <div key={item.id} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition">
-                {item.type === 'image' && (
-                  <img 
-                    src={item.url} 
-                    alt={item.title}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
-                  />
-                )}
+               {item.type === 'image' && (
+  <img 
+    src={item.url || item.thumbnail}  ← Now accepts both!
+    alt={item.title}
+    className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
+  />
+)}
                 {item.type === 'youtube' && (
                   <div className="aspect-video">
                     <iframe 
