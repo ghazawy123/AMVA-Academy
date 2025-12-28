@@ -177,7 +177,10 @@ function LandingPage({
             </button>
             <button 
               onClick={() => {
-                showNotification(lang === 'en' ? 'Application form coming soon!' : 'نموذج التقديم قريباً!', 'info');
+                window.open(
+                  'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+                  '_blank'
+                );
               }}
               className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
               {t.applyNow}
@@ -535,7 +538,10 @@ function LandingPage({
               </button>
               <button 
                 onClick={() => {
-                  showNotification(lang === 'en' ? 'Application form coming soon!' : 'نموذج التقديم قريباً!', 'info');
+                  window.open(
+                    'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+                    '_blank'
+                  );
                 }}
                 className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-2xl">
                 {t.applyNow}
