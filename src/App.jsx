@@ -114,10 +114,10 @@ function LandingPage({
       ? 'Modern training halls, professional equipment, video analysis systems, and experienced coaching staff.'
       : 'صالات تدريب حديثة، معدات احترافية، أنظمة تحليل الفيديو، وطاقم تدريب من ذوي الخبرة.',
     stats: {
-      players: 150,
-      years: 10,
-      championships: 5,
-      coaches: 3
+      players: 500,
+      years: 3,
+      locations: 4,
+      coaches: 1
     }
   };
 
