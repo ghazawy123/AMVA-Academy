@@ -74,7 +74,7 @@ function LandingPage({
       type: 'image',
       title: lang === 'en' ? 'Our Founder' : 'مؤسسنا',
       caption: lang === 'en' ? 'You are the next CHAMP' : 'أنت البطل القادم',
-      url: '/images/gallery-image-2.JPEG',
+      url: '/images/gallery-image-2.jpeg',
       category: 'training'
     },
     {
