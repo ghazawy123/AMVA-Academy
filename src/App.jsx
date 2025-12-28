@@ -96,9 +96,9 @@ function LandingPage({
     {
       id: 4,
       type: 'youtube',
-      title: lang === 'en' ? 'Training Highlights' : 'أبرز لحظات التدريب',
-      caption: lang === 'en' ? 'Watch our training sessions' : 'شاهد جلساتنا التدريبية',
-      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: lang === 'en' ? 'Simplified Volleyball E1' : 'أالكرة الطائرة المبسطة',
+      caption: lang === 'en' ? 'Serve Types' : 'انواع الإرسال',
+      url: 'https://youtu.be/3g-j4zUc8qk?si=4z6c6Wi5tkr7oiyJ',
       category: 'videos'
     }
   ]);
