@@ -107,7 +107,7 @@ function LandingPage({
       title: lang === 'en' ? 'Training Video' : 'فيديو تدريب',
       caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
       url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
-      thumbnail: 'https://www.instagram.com/reel/CwpmagXrfrj//media/?size=l',
+      thumbnail: 'https://www.instagram.com/reel/CwpmagXrfrj/media/?size=l',
       category: 'videos'
     }
   ]);
