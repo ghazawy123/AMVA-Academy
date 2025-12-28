@@ -88,9 +88,9 @@ function LandingPage({
     {
       id: 3,
       type: 'image',
-      title: lang === 'en' ? 'Youth Training' : 'تدريب الشباب',
-      caption: lang === 'en' ? 'Building future champions' : 'بناء أبطال المستقبل',
-      url: 'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=800',
+      title: lang === 'en' ? 'Awards' : 'الجوائز',
+      caption: lang === 'en' ? '1st Place Trophy' : 'كأس المركز الأول',
+      url: '/images/gallery-image-3.jpg',
       category: 'training'
     },
     {
