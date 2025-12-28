@@ -100,6 +100,15 @@ function LandingPage({
       caption: lang === 'en' ? 'Serve Types' : 'انواع الإرسال',
       url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
       category: 'videos'
+    },
+    {
+      id: 5,
+      type: 'instagram',
+      title: lang === 'en' ? 'Training Video' : 'فيديو تدريب',
+      caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
+      url: 'https://www.instagram.com/reel/CwpmagXrfrj/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==',
+      thumbnail: 'https://www.instagram.com/reel/CwpmagXrfrj/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==/media/?size=l',
+      category: 'videos'
     }
   ]);
 
