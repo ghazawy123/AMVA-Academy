@@ -104,10 +104,19 @@ function LandingPage({
     {
       id: 5,
       type: 'instagram',
-      title: lang === 'en' ? 'Training Video' : 'فيديو تدريب',
+      title: lang === 'en' ? 'U15 Training Session' : 'جلسة تدريبية تحت 15 سنة',
       caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
       url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
       thumbnail: '/images/instagram-trainingvideo-1.PNG',
+      category: 'videos'
+    },
+     {
+      id: 6,
+      type: 'instagram',
+      title: lang === 'en' ? 'Girls Training Session' : 'جلسة تدريبية للفتيات',
+      caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
+      url: 'https://www.instagram.com/reel/C0jTBYcNcq0/',
+      thumbnail: '/images/instagram-trainingvideo-2.PNG',
       category: 'videos'
     }
   ]);
