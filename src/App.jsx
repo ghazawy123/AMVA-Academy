@@ -225,7 +225,7 @@ function LandingPage({
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
                 <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.championships}</p>
-                <p className="text-white mt-2">{lang === 'en' ? 'Titles' : 'بطولات'}</p>
+                <p className="text-white mt-2">{lang === 'en' ? 'Locations' : 'مواقع'}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
                 <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.coaches}</p>
