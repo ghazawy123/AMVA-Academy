@@ -1590,91 +1590,540 @@ export default function AMVACompleteApp() {
   // PAGES - ALL PAGES
   // ============================================
 
-  // LANDING PAGE
-  if (currentPage === 'landing') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700" dir={isRTL ? 'rtl' : 'ltr'}>
-        <NotificationToast />
-        <div className="bg-white/10 backdrop-blur-md border-b border-white/20">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-700 rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-yellow-400 font-bold text-xl">AMVA</span>
-              </div>
-              <div className="text-white">
-                <h1 className="text-xl font-bold">AMVA</h1>
-                <p className="text-xs text-blue-200">Ahmed Mostafa Volleyball Academy</p>
-              </div>
+if (currentPage === 'landing') {
+  const [activeSection, setActiveSection] = useState('hero');
+  const [newsPosts, setNewsPosts] = useState([
+    {
+      id: 1,
+      type: 'training_group',
+      title: lang === 'en' ? 'New Under-22 Training Group Starting!' : 'مجموعة تدريب جديدة تحت 22 تبدأ قريباً!',
+      content: lang === 'en' 
+        ? 'Join our advanced training program for competitive players. Limited spots available!'
+        : 'انضم إلى برنامجنا التدريبي المتقدم للاعبين المحترفين. الأماكن محدودة!',
+      image: null,
+      videoUrl: null,
+      instagramUrl: null,
+      groupId: 'tg1',
+      date: '2025-01-02',
+      author: 'Coach Ahmed'
+    },
+    {
+      id: 2,
+      type: 'announcement',
+      title: lang === 'en' ? 'Welcome to AMVA 2025!' : 'مرحباً بكم في AMVA 2025!',
+      content: lang === 'en'
+        ? 'We\'re excited to start the new year with amazing training programs and opportunities for all levels!'
+        : 'نحن متحمسون لبدء العام الجديد مع برامج تدريب رائعة وفرص لجميع المستويات!',
+      image: null,
+      videoUrl: null,
+      instagramUrl: null,
+      date: '2025-01-01',
+      author: 'AMVA Team'
+    },
+    {
+      id: 3,
+      type: 'achievement',
+      title: lang === 'en' ? 'Tournament Success! 🏆' : 'نجاح في البطولة! 🏆',
+      content: lang === 'en'
+        ? 'Our Under-18 team won 1st place in the Cairo Regional Championship! Congratulations to all players!'
+        : 'فريقنا تحت 18 فاز بالمركز الأول في بطولة القاهرة الإقليمية! تهانينا لجميع اللاعبين!',
+      image: null,
+      videoUrl: null,
+      instagramUrl: null,
+      date: '2024-12-28',
+      author: 'Coach Ahmed'
+    }
+  ]);
+
+  const [galleryItems, setGalleryItems] = useState([
+    {
+      id: 1,
+      type: 'image',
+      title: lang === 'en' ? 'Training Session' : 'جلسة تدريب',
+      caption: lang === 'en' ? 'Intensive practice session' : 'جلسة تمرين مكثفة',
+      url: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800',
+      category: 'training'
+    },
+    {
+      id: 2,
+      type: 'image',
+      title: lang === 'en' ? 'Team Victory' : 'انتصار الفريق',
+      caption: lang === 'en' ? 'Championship celebration' : 'احتفال بالبطولة',
+      url: 'https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=800',
+      category: 'achievements'
+    },
+    {
+      id: 3,
+      type: 'image',
+      title: lang === 'en' ? 'Youth Training' : 'تدريب الشباب',
+      caption: lang === 'en' ? 'Building future champions' : 'بناء أبطال المستقبل',
+      url: 'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=800',
+      category: 'training'
+    },
+    {
+      id: 4,
+      type: 'youtube',
+      title: lang === 'en' ? 'Training Highlights' : 'أبرز لحظات التدريب',
+      caption: lang === 'en' ? 'Watch our training sessions' : 'شاهد جلساتنا التدريبية',
+      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      category: 'videos'
+    }
+  ]);
+
+  const academyInfo = {
+    mission: lang === 'en' 
+      ? 'To develop volleyball talent in Egypt and create future champions through professional training and dedication.'
+      : 'تطوير مواهب الكرة الطائرة في مصر وخلق أبطال المستقبل من خلال التدريب الاحترافي والتفاني.',
+    vision: lang === 'en'
+      ? 'To be the leading volleyball academy in the Middle East, known for excellence in player development.'
+      : 'أن نكون الأكاديمية الرائدة للكرة الطائرة في الشرق الأوسط، معروفين بالتميز في تطوير اللاعبين.',
+    facilities: lang === 'en'
+      ? 'Modern training halls, professional equipment, video analysis systems, and experienced coaching staff.'
+      : 'صالات تدريب حديثة، معدات احترافية، أنظمة تحليل الفيديو، وطاقم تدريب من ذوي الخبرة.',
+    stats: {
+      players: 150,
+      years: 10,
+      championships: 5,
+      coaches: 3
+    }
+  };
+
+  const coachInfo = {
+    name: lang === 'en' ? 'Ahmed Mostafa' : 'أحمد مصطفى',
+    bio: lang === 'en'
+      ? 'Professional volleyball coach with over 10 years of experience in player development. Former national team player and certified international coach.'
+      : 'مدرب كرة طائرة محترف بخبرة تزيد عن 10 سنوات في تطوير اللاعبين. لاعب سابق في المنتخب الوطني ومدرب دولي معتمد.',
+    achievements: [
+      lang === 'en' ? 'National team player (2008-2015)' : 'لاعب في المنتخب الوطني (2008-2015)',
+      lang === 'en' ? 'Championship winner 2012, 2015' : 'بطل 2012، 2015',
+      lang === 'en' ? 'Best coach award 2020' : 'جائزة أفضل مدرب 2020',
+      lang === 'en' ? 'Developed 30+ professional players' : 'طور أكثر من 30 لاعب محترف'
+    ],
+    certifications: [
+      lang === 'en' ? 'FIVB Level 2 Coaching Certificate' : 'شهادة تدريب FIVB المستوى 2',
+      lang === 'en' ? 'Sports Science Degree - Cairo University' : 'درجة علوم الرياضة - جامعة القاهرة',
+      lang === 'en' ? 'First Aid & CPR Certified' : 'معتمد في الإسعافات الأولية والإنعاش القلبي الرئوي'
+    ]
+  };
+
+  const scrollToSection = (sectionId) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+      <NotificationToast />
+      
+      {/* FLOATING HEADER - Always Visible */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-lg">
+              <span className="text-yellow-400 font-bold text-lg">AMVA</span>
             </div>
-            
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-                className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition text-white text-sm">
-                {lang === 'en' ? '🇪🇬 العربية' : '🇬🇧 English'}
-              </button>
-              <button 
-                onClick={() => setCurrentPage('login')}
-                className="px-6 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-300 transition shadow-lg">
-                {t.signIn}
-              </button>
+            <div>
+              <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
+              <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
             </div>
           </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">
-            {t.welcome}<br/>
-            <span className="text-yellow-400">AMVA</span>
-          </h1>
-          <p className="text-2xl text-blue-100 mb-12 animate-fade-in-delay">{t.tagline}</p>
           
-          <div className="flex gap-4 justify-center flex-wrap animate-fade-in-delay-2">
+          <div className="flex items-center gap-3">
             <button 
-              onClick={() => setShowAddApplication(true)}
-              className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-lg font-bold text-lg hover:bg-yellow-300 transition transform hover:scale-105 shadow-xl">
-              {t.applyNow}
+              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+              className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+              {lang === 'en' ? '🇪🇬 AR' : '🇬🇧 EN'}
             </button>
             <button 
               onClick={() => setCurrentPage('login')}
-              className="px-8 py-4 bg-white/20 backdrop-blur-md text-white rounded-lg font-bold text-lg hover:bg-white/30 transition border-2 border-white/50">
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
               {t.signIn}
             </button>
-          </div>
-          
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-white">
-              <Award size={48} className="text-yellow-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">{lang === 'en' ? 'Professional Training' : 'تدريب احترافي'}</h3>
-              <p className="text-blue-100">{lang === 'en' ? 'Expert coaches and modern facilities' : 'مدربين خبراء ومرافق حديثة'}</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-white">
-              <Target size={48} className="text-yellow-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">{lang === 'en' ? 'All Levels Welcome' : 'جميع المستويات'}</h3>
-              <p className="text-blue-100">{lang === 'en' ? 'From beginners to professionals' : 'من المبتدئين إلى المحترفين'}</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-white">
-              <Zap size={48} className="text-yellow-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">{lang === 'en' ? 'Flexible Schedule' : 'جدول مرن'}</h3>
-              <p className="text-blue-100">{lang === 'en' ? 'Choose times that work for you' : 'اختر الأوقات المناسبة لك'}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-md border-t border-white/10 py-8 mt-20">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <div className="flex items-center justify-center gap-6 mb-4 text-blue-100 flex-wrap">
-              <span className="flex items-center gap-2"><Phone size={16} /> +20 100 123 4567</span>
-              <span className="flex items-center gap-2"><Mail size={16} /> info@amva-eg.com</span>
-              <span className="flex items-center gap-2"><MapPin size={16} /> Cairo, Egypt</span>
-            </div>
-            <p className="text-blue-200 text-sm">© 2024 Ahmed Mostafa Volleyball Academy - All Rights Reserved</p>
+            <button 
+              onClick={() => {
+                showNotification(lang === 'en' ? 'Application form coming soon!' : 'نموذج التقديم قريباً!', 'info');
+              }}
+              className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
+              {t.applyNow}
+            </button>
           </div>
         </div>
       </div>
-    );
-  }
+
+      {/* SECTION 1: HERO */}
+      <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-16">
+        <div className="text-center px-4 max-w-5xl">
+          <div className="animate-fade-in">
+            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
+              {lang === 'en' ? 'Welcome to' : 'مرحباً بك في'}
+              <br/>
+              <span className="text-yellow-400">AMVA</span>
+            </h1>
+            <p className="text-2xl md:text-3xl text-blue-100 mb-8">{t.tagline}</p>
+            <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto">
+              {lang === 'en' 
+                ? 'Join Egypt\'s premier volleyball academy and train with professional coaches in world-class facilities.'
+                : 'انضم إلى أكاديمية الكرة الطائرة الرائدة في مصر وتدرب مع مدربين محترفين في منشآت عالمية المستوى.'}
+            </p>
+            
+            <div className="flex gap-4 justify-center flex-wrap mb-16">
+              <button 
+                onClick={() => scrollToSection('news')}
+                className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
+                {lang === 'en' ? 'Explore' : 'استكشف'} ↓
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.players}+</p>
+                <p className="text-white mt-2">{lang === 'en' ? 'Players' : 'لاعب'}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.years}</p>
+                <p className="text-white mt-2">{lang === 'en' ? 'Years' : 'سنوات'}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.championships}</p>
+                <p className="text-white mt-2">{lang === 'en' ? 'Titles' : 'بطولات'}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.coaches}</p>
+                <p className="text-white mt-2">{lang === 'en' ? 'Coaches' : 'مدربين'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 2: NEWS FEED */}
+      <div id="news" className="min-h-screen bg-gray-50 py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              {lang === 'en' ? 'Latest News' : 'آخر الأخبار'}
+            </h2>
+            <p className="text-xl text-gray-600">
+              {lang === 'en' ? 'Stay updated with our latest announcements and achievements' : 'ابقَ على اطلاع بأحدث إعلاناتنا وإنجازاتنا'}
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {newsPosts.map(post => (
+              <div key={post.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {post.author.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">{post.author}</p>
+                    <p className="text-sm text-gray-500">{post.date}</p>
+                  </div>
+                  {post.type === 'training_group' && (
+                    <span className="ml-auto px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                      {lang === 'en' ? '🏐 Training Group' : '🏐 مجموعة تدريب'}
+                    </span>
+                  )}
+                  {post.type === 'achievement' && (
+                    <span className="ml-auto px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                      {lang === 'en' ? '🏆 Achievement' : '🏆 إنجاز'}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">{post.title}</h3>
+                <p className="text-gray-700 text-lg mb-4 leading-relaxed">{post.content}</p>
+
+                {post.image && (
+                  <img src={post.image} alt={post.title} className="w-full h-64 object-cover rounded-xl mb-4" />
+                )}
+
+                {post.videoUrl && (
+                  <div className="aspect-video mb-4">
+                    <iframe 
+                      src={post.videoUrl} 
+                      className="w-full h-full rounded-xl"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+
+                {post.type === 'training_group' && (
+                  <button 
+                    onClick={() => {
+                      setCurrentPage('player-training');
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg">
+                    {lang === 'en' ? '🏐 Join Training Group' : '🏐 انضم للمجموعة التدريبية'}
+                  </button>
+                )}
+
+                <div className="flex gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                    <span>👍</span>
+                    <span className="text-sm font-medium">{lang === 'en' ? 'Like' : 'إعجاب'}</span>
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                    <span>💬</span>
+                    <span className="text-sm font-medium">{lang === 'en' ? 'Comment' : 'تعليق'}</span>
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                    <span>↗️</span>
+                    <span className="text-sm font-medium">{lang === 'en' ? 'Share' : 'مشاركة'}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <button 
+              onClick={() => scrollToSection('about')}
+              className="px-8 py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition">
+              {lang === 'en' ? 'Learn More About Us ↓' : 'تعرف علينا أكثر ↓'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 3: ABOUT */}
+      <div id="about" className="min-h-screen bg-white py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              {lang === 'en' ? 'About AMVA' : 'عن AMVA'}
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {/* About Academy */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8">
+              <h3 className="text-3xl font-bold text-blue-900 mb-6">
+                {lang === 'en' ? '🏢 The Academy' : '🏢 الأكاديمية'}
+              </h3>
+              
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-bold text-blue-800 text-lg mb-2">
+                    {lang === 'en' ? 'Our Mission' : 'مهمتنا'}
+                  </h4>
+                  <p className="text-gray-700 leading-relaxed">{academyInfo.mission}</p>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-blue-800 text-lg mb-2">
+                    {lang === 'en' ? 'Our Vision' : 'رؤيتنا'}
+                  </h4>
+                  <p className="text-gray-700 leading-relaxed">{academyInfo.vision}</p>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-blue-800 text-lg mb-2">
+                    {lang === 'en' ? 'Facilities' : 'المرافق'}
+                  </h4>
+                  <p className="text-gray-700 leading-relaxed">{academyInfo.facilities}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* About Coach */}
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8">
+              <h3 className="text-3xl font-bold text-yellow-900 mb-6">
+                {lang === 'en' ? '👨‍🏫 Coach Ahmed Mostafa' : '👨‍🏫 المدرب أحمد مصطفى'}
+              </h3>
+              
+              <div className="space-y-6">
+                <p className="text-gray-700 leading-relaxed">{coachInfo.bio}</p>
+
+                <div>
+                  <h4 className="font-bold text-yellow-800 text-lg mb-3">
+                    {lang === 'en' ? 'Achievements' : 'الإنجازات'}
+                  </h4>
+                  <ul className="space-y-2">
+                    {coachInfo.achievements.map((achievement, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-yellow-600 font-bold">✓</span>
+                        <span className="text-gray-700">{achievement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-yellow-800 text-lg mb-3">
+                    {lang === 'en' ? 'Certifications' : 'الشهادات'}
+                  </h4>
+                  <ul className="space-y-2">
+                    {coachInfo.certifications.map((cert, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-yellow-600 font-bold">🎓</span>
+                        <span className="text-gray-700">{cert}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button 
+              onClick={() => scrollToSection('gallery')}
+              className="px-8 py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition">
+              {lang === 'en' ? 'View Gallery ↓' : 'عرض المعرض ↓'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 4: GALLERY */}
+      <div id="gallery" className="min-h-screen bg-gray-50 py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              {lang === 'en' ? 'Gallery' : 'المعرض'}
+            </h2>
+            <p className="text-xl text-gray-600">
+              {lang === 'en' ? 'Photos and videos from our training sessions' : 'صور وفيديوهات من جلساتنا التدريبية'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryItems.map(item => (
+              <div key={item.id} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition">
+                {item.type === 'image' && (
+                  <img 
+                    src={item.url} 
+                    alt={item.title}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
+                  />
+                )}
+                {item.type === 'youtube' && (
+                  <div className="aspect-video">
+                    <iframe 
+                      src={item.url} 
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <h4 className="text-white font-bold text-lg">{item.title}</h4>
+                  <p className="text-gray-200 text-sm">{item.caption}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <button 
+              onClick={() => scrollToSection('contact')}
+              className="px-8 py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition">
+              {lang === 'en' ? 'Contact Us ↓' : 'تواصل معنا ↓'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 5: CONTACT & FOOTER */}
+      <div id="contact" className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              {lang === 'en' ? 'Get in Touch' : 'تواصل معنا'}
+            </h2>
+            <p className="text-xl text-blue-100">
+              {lang === 'en' ? 'Ready to start your volleyball journey?' : 'مستعد لبدء رحلتك في الكرة الطائرة؟'}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <Phone size={48} className="text-yellow-400 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-lg mb-2">
+                {lang === 'en' ? 'Phone' : 'الهاتف'}
+              </h3>
+              <p className="text-blue-100">+20 100 123 4567</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <Mail size={48} className="text-yellow-400 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-lg mb-2">
+                {lang === 'en' ? 'Email' : 'البريد الإلكتروني'}
+              </h3>
+              <p className="text-blue-100">info@amva-eg.com</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <MapPin size={48} className="text-yellow-400 mx-auto mb-4" />
+              <h3 className="text-white font-bold text-lg mb-2">
+                {lang === 'en' ? 'Location' : 'الموقع'}
+              </h3>
+              <p className="text-blue-100">Cairo, Egypt</p>
+            </div>
+          </div>
+
+          <div className="text-center mb-8">
+            <div className="flex gap-4 justify-center mb-6">
+              <a 
+                href="https://instagram.com/amva_eg" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
+                <span className="text-white text-xl">📷</span>
+              </a>
+              <a 
+                href="https://facebook.com/amva.eg" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
+                <span className="text-white text-xl">👥</span>
+              </a>
+              <a 
+                href="https://youtube.com/@amva_eg" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
+                <span className="text-white text-xl">▶️</span>
+              </a>
+            </div>
+
+            <div className="flex gap-4 justify-center flex-wrap">
+              <button 
+                onClick={() => setCurrentPage('login')}
+                className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-xl font-bold text-lg hover:bg-yellow-500 transition shadow-2xl">
+                {t.signIn}
+              </button>
+              <button 
+                onClick={() => {
+                  showNotification(lang === 'en' ? 'Application form coming soon!' : 'نموذج التقديم قريباً!', 'info');
+                }}
+                className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-2xl">
+                {t.applyNow}
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20 pt-8 text-center">
+            <p className="text-blue-200 text-sm">
+              © 2025 Ahmed Mostafa Volleyball Academy - All Rights Reserved
+            </p>
+            <p className="text-blue-300 text-xs mt-2">
+              {lang === 'en' ? 'Building Champions Through Excellence' : 'بناء الأبطال من خلال التميز'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
   // LOGIN PAGE
   if (currentPage === 'login') {
