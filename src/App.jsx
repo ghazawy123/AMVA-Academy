@@ -98,7 +98,7 @@ function LandingPage({
       type: 'youtube',
       title: lang === 'en' ? 'Simplified Volleyball E1' : 'أالكرة الطائرة المبسطة',
       caption: lang === 'en' ? 'Serve Types' : 'انواع الإرسال',
-      url: 'https://youtu.be/3g-j4zUc8qk?si=4z6c6Wi5tkr7oiyJ',
+      url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
       category: 'videos'
     }
   ]);
