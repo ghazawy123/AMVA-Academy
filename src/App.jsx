@@ -116,7 +116,7 @@ function LandingPage({
     stats: {
       players: 500,
       years: 3,
-      locations: 4,
+      locations: 5,
       coaches: 1
     }
   };
