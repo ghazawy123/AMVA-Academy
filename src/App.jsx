@@ -82,7 +82,7 @@ function LandingPage({
       type: 'image',
       title: lang === 'en' ? 'Team Victory' : 'انتصار الفريق',
       caption: lang === 'en' ? 'Championship celebration' : 'احتفال بالبطولة',
-      url: 'https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=800',
+      url: '/images/gallery-image-1.jpg',
       category: 'achievements'
     },
     {
