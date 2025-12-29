@@ -173,10 +173,18 @@ function LandingPage({
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-yellow-400 font-bold text-lg">AMVA</span>
-            </div>
-            <div>
+  <div className="w-12 h-12 rounded-lg overflow-hidden shadow-lg bg-white p-1">
+    <img 
+      src="/images/AMVA-logo-1.png" 
+      alt="AMVA Logo" 
+      className="w-full h-full object-contain"
+    />
+  </div>
+  <div>
+    <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
+    <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
+  </div>
+</div>
               <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
               <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
             </div>
