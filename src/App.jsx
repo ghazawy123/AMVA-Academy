@@ -2230,12 +2230,15 @@ export default function AMVACompleteApp() {
           </button>
           
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-lg overflow-hidden shadow-lg">
-  <img 
-    src="/images/AMVA-logo-1.png" 
-    alt="AMVA Logo" 
-    className="w-full h-full object-contain"
-  />
+  <div className="w-32 h-32 mx-auto mb-4">
+    <img 
+      src="/images/AMVA-logo-1.png" 
+      alt="AMVA Logo" 
+      className="w-full h-full object-contain"
+    />
+  </div>
+  <h2 className="text-xl text-gray-700 mb-2">Ahmed Mostafa Volleyball Academy</h2>
+  <p className="text-gray-600 mt-3">{t.signIn}</p>
 </div>
             <h1 className="text-3xl font-bold text-blue-700 mb-2">AMVA</h1>
             <h2 className="text-xl text-gray-700">Ahmed Mostafa Volleyball Academy</h2>
