@@ -115,7 +115,7 @@ function LandingPage({
       type: 'instagram',
       title: lang === 'en' ? 'Girls Training Session' : 'جلسة تدريبية للفتيات',
       caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
-      url: 'https://www.instagram.com/reel/C0jTBYcNcq0/',
+      url: 'https://www.instagram.com/p/C0jTBYcNcq0/',
       thumbnail: '/images/instagram-trainingvideo-2.PNG',
       category: 'videos'
     }
