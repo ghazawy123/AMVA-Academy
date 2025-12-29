@@ -170,50 +170,46 @@ function LandingPage({
       <NotificationToast />
       
       {/* FLOATING HEADER - Always Visible */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-  <div className="w-12 h-12 rounded-lg overflow-hidden shadow-lg bg-white p-1">
-    <img 
-      src="/images/AMVA-logo-1.png" 
-      alt="AMVA Logo" 
-      className="w-full h-full object-contain"
-    />
-  </div>
-  <div>
-    <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
-    <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
+<div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
+  <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+      <div className="w-12 h-12 rounded-lg overflow-hidden shadow-lg bg-white p-1">
+        <img 
+          src="/images/AMVA-logo-1.png" 
+          alt="AMVA Logo" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      <div>
+        <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
+        <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-3">
+      <button 
+        onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+        className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+        {lang === 'en' ? '🇪🇬 AR' : '🇬🇧 EN'}
+      </button>
+      <button 
+        onClick={() => setCurrentPage('login')}
+        className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
+        {t.signIn}
+      </button>
+      <button 
+        onClick={() => {
+          window.open(
+            'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+            '_blank'
+          );
+        }}
+        className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
+        {t.applyNow}
+      </button>
+    </div>
   </div>
 </div>
-              <h1 className="text-lg font-bold text-gray-800">AMVA</h1>
-              <p className="text-xs text-gray-500">Ahmed Mostafa Volleyball Academy</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-              className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-              {lang === 'en' ? '🇪🇬 AR' : '🇬🇧 EN'}
-            </button>
-            <button 
-              onClick={() => setCurrentPage('login')}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
-              {t.signIn}
-            </button>
-            <button 
-              onClick={() => {
-                window.open(
-                  'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
-                  '_blank'
-                );
-              }}
-              className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
-              {t.applyNow}
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* SECTION 1: HERO */}
       <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-16">
