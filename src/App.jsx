@@ -554,7 +554,7 @@ function LandingPage({
               <h3 className="text-white font-bold text-lg mb-2">
                 {lang === 'en' ? 'Phone' : 'الهاتف'}
               </h3>
-              <p className="text-blue-100">+20 100 123 4567</p>
+              <p className="text-blue-100">+20 111 110 8484</p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
@@ -562,7 +562,7 @@ function LandingPage({
               <h3 className="text-white font-bold text-lg mb-2">
                 {lang === 'en' ? 'Email' : 'البريد الإلكتروني'}
               </h3>
-              <p className="text-blue-100">info@amva-eg.com</p>
+              <p className="text-blue-100">amvolleyballagency@gmail.com</p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
