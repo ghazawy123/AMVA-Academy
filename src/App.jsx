@@ -385,24 +385,32 @@ function LandingPage({
           </div>
 
           <div className="space-y-6">
-            {allPosts.map(post => (
+            {allPosts.map(post => {
+              const categoryInfo = getCategoryDisplay(post.type);
+              const isPost = post.postType === 'post' || !['training_session', 'training_group'].includes(post.type);
+              
+              return (
               <div key={post.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                     {post.author.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800">{post.author}</p>
-                    <p className="text-sm text-gray-500">{post.date}</p>
+                    <p className="font-semibold text-gray-800">{lang === 'en' ? post.author : (post.authorAr || post.author)}</p>
+                    <p className="text-sm text-gray-500">{post.date || new Date(post.createdAt).toLocaleDateString()}</p>
                   </div>
-                  {post.type === 'training_group' && (
-                    <span className="ml-auto px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                      {lang === 'en' ? '🏐 Training Group' : '🏐 مجموعة تدريب'}
+                  
+                  {/* Category Badge for Posts */}
+                  {isPost && (
+                    <span className={`ml-auto px-3 py-1 bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800 rounded-full text-sm font-semibold`}>
+                      {categoryInfo.icon} {lang === 'en' ? categoryInfo.nameEn : categoryInfo.nameAr}
                     </span>
                   )}
-                 {post.type === 'achievement' && (
-                    <span className="ml-auto px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-                      {lang === 'en' ? '🏆 Achievement' : '🏆 إنجاز'}
+                  
+                  {/* Training Type Badges */}
+                  {post.type === 'training_group' && (
+                    <span className="ml-auto px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                      {lang === 'en' ? '👥 Training Group' : '👥 مجموعة تدريب'}
                     </span>
                   )}
                   {post.type === 'training_session' && (
@@ -410,6 +418,8 @@ function LandingPage({
                       {lang === 'en' ? '📅 Training Session' : '📅 جلسة تدريب'}
                     </span>
                   )}
+                  
+                  {/* Visibility Badge */}
                   {post.visibility === 'members' && (
                     <span className="ml-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">
                       {lang === 'en' ? '🔒 Members Only' : '🔒 للأعضاء فقط'}
@@ -417,8 +427,45 @@ function LandingPage({
                   )}
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">{post.title}</h3>
-                <p className="text-gray-700 text-lg mb-4 leading-relaxed">{post.content}</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">{lang === 'en' ? post.title : (post.titleAr || post.title)}</h3>
+                <p className="text-gray-700 text-lg mb-4 leading-relaxed">{lang === 'en' ? post.content : (post.contentAr || post.content)}</p>
+
+                {/* Image */}
+                {post.imageUrl && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    <img 
+                      src={post.imageUrl} 
+                      alt={post.title}
+                      className="w-full h-auto"
+                      onError={(e) => e.target.style.display = 'none'}
+                    />
+                  </div>
+                )}
+
+                {/* YouTube Embed */}
+                {post.videoUrl && getYouTubeEmbedUrl(post.videoUrl) && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    <iframe
+                      src={getYouTubeEmbedUrl(post.videoUrl)}
+                      className="w-full aspect-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+
+                {/* Instagram Embed */}
+                {post.instagramUrl && getInstagramEmbedUrl(post.instagramUrl) && (
+                  <div className="mb-4">
+                    <iframe
+                      src={getInstagramEmbedUrl(post.instagramUrl)}
+                      className="w-full"
+                      style={{ minHeight: '500px', border: 'none', overflow: 'hidden' }}
+                      scrolling="no"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
 
                 {/* Training Details */}
                 {(post.type === 'training_session' || post.type === 'training_group') && (
@@ -480,21 +527,6 @@ function LandingPage({
                   </div>
                 )}
 
-                {post.image && (
-                  <img src={post.image} alt={post.title} className="w-full h-64 object-cover rounded-xl mb-4" />
-                )}
-
-                {post.videoUrl && (
-                  <div className="aspect-video mb-4">
-                    <iframe 
-                      src={post.videoUrl} 
-                      className="w-full h-full rounded-xl"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                )}
-
                 {/* Join Button for Training Posts */}
                 {(post.type === 'training_session' || post.type === 'training_group') && user && user.role === 'player' && (() => {
                   const registration = getRegistrationStatus(post);
@@ -537,7 +569,8 @@ function LandingPage({
                 })()}
                 
               </div>
-            ))}
+            );
+            })}
           </div>
 
           <div className="text-center mt-8">
@@ -1748,6 +1781,48 @@ useEffect(() => {
   };
 
   // Handle creating a new post
+// Helper function to get YouTube embed URL
+const getYouTubeEmbedUrl = (url) => {
+  if (!url) return null;
+  try {
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      return url;
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to get Instagram embed URL
+const getInstagramEmbedUrl = (url) => {
+  if (!url || !url.includes('instagram.com')) return null;
+  try {
+    // Remove trailing slash
+    const cleanUrl = url.replace(/\/$/, '');
+    return `${cleanUrl}/embed`;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to get category icon and name
+const getCategoryDisplay = (category) => {
+  const categories = {
+    announcement: { icon: '📢', nameEn: 'Announcement', nameAr: 'إعلان', color: 'purple' },
+    educational: { icon: '📚', nameEn: 'Educational', nameAr: 'تعليمي', color: 'blue' },
+    promotional: { icon: '🎯', nameEn: 'Promotional', nameAr: 'ترويجي', color: 'orange' },
+    events: { icon: '🎉', nameEn: 'Events', nameAr: 'فعاليات', color: 'pink' },
+    updates: { icon: '📰', nameEn: 'Updates', nameAr: 'تحديثات', color: 'teal' }
+  };
+  return categories[category] || categories.announcement;
+};
+
 const handleCreatePost = (e) => {
   e.preventDefault();
   
@@ -3981,20 +4056,35 @@ if (currentPage === 'login') {
           </div>
         </div>
 
-        {/* Type and Visibility */}
+        {/* Type/Category and Visibility */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
-              {lang === 'en' ? 'Post Type' : 'نوع المنشور'} *
+              {modalType === 'post' 
+                ? (lang === 'en' ? 'Category' : 'الفئة')
+                : (lang === 'en' ? 'Training Type' : 'نوع التدريب')
+              } *
             </label>
-            <select
-              value={newPost.type}
-              onChange={(e) => setNewPost({...newPost, type: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
-              <option value="announcement">{lang === 'en' ? 'Announcement' : 'إعلان'}</option>
-              <option value="training_session">{lang === 'en' ? 'Training Session' : 'جلسة تدريب'}</option>
-              <option value="training_group">{lang === 'en' ? 'Training Group' : 'مجموعة تدريب'}</option>
-            </select>
+            {modalType === 'post' ? (
+              <select
+                value={newPost.category}
+                onChange={(e) => setNewPost({...newPost, category: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                <option value="announcement">{lang === 'en' ? '📢 Announcement' : '📢 إعلان'}</option>
+                <option value="educational">{lang === 'en' ? '📚 Educational' : '📚 تعليمي'}</option>
+                <option value="promotional">{lang === 'en' ? '🎯 Promotional' : '🎯 ترويجي'}</option>
+                <option value="events">{lang === 'en' ? '🎉 Events' : '🎉 فعاليات'}</option>
+                <option value="updates">{lang === 'en' ? '📰 Updates' : '📰 تحديثات'}</option>
+              </select>
+            ) : (
+              <select
+                value={newPost.trainingType}
+                onChange={(e) => setNewPost({...newPost, trainingType: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+                <option value="training_session">{lang === 'en' ? '📅 Training Session' : '📅 جلسة تدريب'}</option>
+                <option value="training_group">{lang === 'en' ? '👥 Training Group' : '👥 مجموعة تدريب'}</option>
+              </select>
+            )}
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -4010,8 +4100,50 @@ if (currentPage === 'login') {
           </div>
         </div>
 
-        {/* Date, Time, Location (for training posts) */}
-        {(newPost.type === 'training_session' || newPost.type === 'training_group') && (
+        {/* Media URLs (for posts) */}
+        {modalType === 'post' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                {lang === 'en' ? 'Image URL' : 'رابط الصورة'}
+              </label>
+              <input
+                type="url"
+                value={newPost.imageUrl}
+                onChange={(e) => setNewPost({...newPost, imageUrl: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                {lang === 'en' ? 'YouTube URL' : 'رابط يوتيوب'}
+              </label>
+              <input
+                type="url"
+                value={newPost.videoUrl}
+                onChange={(e) => setNewPost({...newPost, videoUrl: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                placeholder="https://youtube.com/..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                {lang === 'en' ? 'Instagram URL' : 'رابط إنستغرام'}
+              </label>
+              <input
+                type="url"
+                value={newPost.instagramUrl}
+                onChange={(e) => setNewPost({...newPost, instagramUrl: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                placeholder="https://instagram.com/..."
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Date, Time, Location (for training only) */}
+        {modalType === 'training' && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -4081,7 +4213,7 @@ if (currentPage === 'login') {
         )}
 
         {/* Number of Sessions & Days (for training groups) */}
-        {newPost.type === 'training_group' && (
+        {modalType === 'training' && newPost.trainingType === 'training_group' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
