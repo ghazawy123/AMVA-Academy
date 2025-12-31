@@ -495,8 +495,8 @@ function LandingPage({
                   </div>
                 )}
 
-                {/* Join Button for Training Posts (Members Only) */}
-                {(post.type === 'training_session' || post.type === 'training_group') && post.visibility === 'members' && user && user.role === 'player' && (() => {
+                {/* Join Button for Training Posts */}
+                {(post.type === 'training_session' || post.type === 'training_group') && user && user.role === 'player' && (() => {
                   const registration = getRegistrationStatus(post);
                   
                   if (registration?.status === 'approved') {
@@ -2453,6 +2453,11 @@ const handleCreatePost = (e) => {
                       title={t.myRegistrations}>
                       <FileText size={20} className="text-blue-700" />
                     </button>
+                    <button onClick={() => setCurrentPage('training-calendar')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'training-calendar' ? 'bg-blue-100' : ''}`}
+                      title={lang === 'en' ? 'Training Calendar' : 'تقويم التدريبات'}>
+                      <Calendar size={20} className="text-blue-700" />
+                    </button>
                   </>
                 )}
                 
@@ -2510,9 +2515,9 @@ const handleCreatePost = (e) => {
                       title={t.manageGroups}>
                       <Users size={20} className="text-blue-700" />
                     </button>
-                    <button onClick={() => setCurrentPage('attendance-management')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'attendance-management' ? 'bg-blue-100' : ''}`}
-                      title={t.attendanceManagement}>
+                    <button onClick={() => setCurrentPage('session-attendance')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'session-attendance' ? 'bg-blue-100' : ''}`}
+                      title={lang === 'en' ? 'Session Attendance' : 'حضور الجلسات'}>
                       <CheckCircle size={20} className="text-blue-700" />
                     </button>
                     <button onClick={() => setCurrentPage('analytics')} 
@@ -4072,6 +4077,427 @@ if (currentPage === 'login') {
                       <span className="text-red-700 font-medium">
                         ✗ {post.registrations.filter(r => r.status === 'rejected').length} {lang === 'en' ? 'Rejected' : 'مرفوض'}
                       </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // SESSION ATTENDANCE PAGE (Admin/Coach)
+  if (currentPage === 'session-attendance' && isAdmin) {
+    // Get all approved training posts with registrations
+    const trainingSessions = posts.filter(post => 
+      (post.type === 'training_session' || post.type === 'training_group') &&
+      post.registrations && 
+      post.registrations.some(reg => reg.status === 'approved')
+    );
+
+    // Handle marking attendance
+    const handleMarkAttendance = (postId, playerId, attended) => {
+      const updatedPosts = posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            registrations: post.registrations.map(reg => {
+              if (reg.playerId === playerId) {
+                return {
+                  ...reg,
+                  attendance: {
+                    ...(reg.attendance || {}),
+                    [new Date().toISOString().split('T')[0]]: {
+                      attended,
+                      markedBy: user.name,
+                      markedAt: new Date().toISOString()
+                    }
+                  }
+                };
+              }
+              return reg;
+            })
+          };
+        }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
+      addNotification(
+        lang === 'en' 
+          ? `Attendance marked as ${attended ? 'Present' : 'Absent'}`
+          : `تم تسجيل الحضور كـ ${attended ? 'حاضر' : 'غائب'}`,
+        'success'
+      );
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            {lang === 'en' ? 'Session Attendance' : 'حضور الجلسات'}
+          </h2>
+
+          {trainingSessions.length === 0 ? (
+            <div className="bg-white rounded-xl p-12 shadow-lg text-center">
+              <Calendar size={64} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                {lang === 'en' ? 'No Active Sessions' : 'لا توجد جلسات نشطة'}
+              </h3>
+              <p className="text-gray-600">
+                {lang === 'en' 
+                  ? 'Create training sessions and approve registrations to mark attendance.'
+                  : 'أنشئ جلسات تدريبية ووافق على التسجيلات لتسجيل الحضور.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {trainingSessions.map(session => {
+                const approvedPlayers = session.registrations.filter(reg => reg.status === 'approved');
+                const today = new Date().toISOString().split('T')[0];
+                
+                return (
+                  <div key={session.id} className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">
+                          {lang === 'en' ? session.title : (session.titleAr || session.title)}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 text-sm mb-3">
+                          {session.type === 'training_session' && (
+                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                              📅 {lang === 'en' ? 'Session' : 'جلسة'}
+                            </span>
+                          )}
+                          {session.type === 'training_group' && (
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                              👥 {lang === 'en' ? 'Group' : 'مجموعة'}
+                            </span>
+                          )}
+                          {session.date && (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              📅 {session.date}
+                            </span>
+                          )}
+                          {session.time && (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              🕐 {session.time}
+                            </span>
+                          )}
+                          {session.location && (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              📍 {lang === 'en' ? session.location : (session.locationAr || session.location)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">
+                          {lang === 'en' ? 'Registered Players' : 'اللاعبون المسجلون'}
+                        </p>
+                        <p className="text-2xl font-bold text-blue-600">{approvedPlayers.length}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <h4 className="font-semibold text-gray-700 mb-3">
+                        {lang === 'en' ? 'Mark Attendance' : 'تسجيل الحضور'}
+                      </h4>
+                      
+                      {approvedPlayers.length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">
+                          {lang === 'en' ? 'No registered players yet' : 'لا يوجد لاعبون مسجلون بعد'}
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {approvedPlayers.map(player => {
+                            const todayAttendance = player.attendance?.[today];
+                            const hasMarked = todayAttendance !== undefined;
+                            const isPresent = todayAttendance?.attended;
+                            
+                            return (
+                              <div key={player.playerId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                                    {player.playerName.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-800">
+                                      {lang === 'en' ? player.playerName : (player.playerNameAr || player.playerName)}
+                                    </p>
+                                    <p className="text-sm text-gray-500">{player.playerEmail}</p>
+                                  </div>
+                                  {hasMarked && (
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                      isPresent 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-red-100 text-red-800'
+                                    }`}>
+                                      {isPresent 
+                                        ? (lang === 'en' ? '✓ Present' : '✓ حاضر')
+                                        : (lang === 'en' ? '✗ Absent' : '✗ غائب')
+                                      }
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleMarkAttendance(session.id, player.playerId, true)}
+                                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                                      hasMarked && isPresent
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                    }`}>
+                                    {lang === 'en' ? '✓ Present' : '✓ حاضر'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleMarkAttendance(session.id, player.playerId, false)}
+                                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                                      hasMarked && !isPresent
+                                        ? 'bg-red-600 text-white'
+                                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                    }`}>
+                                    {lang === 'en' ? '✗ Absent' : '✗ غائب'}
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Attendance Summary */}
+                    {approvedPlayers.length > 0 && (() => {
+                      const markedToday = approvedPlayers.filter(p => p.attendance?.[today] !== undefined).length;
+                      const presentToday = approvedPlayers.filter(p => p.attendance?.[today]?.attended === true).length;
+                      
+                      return markedToday > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">
+                              {lang === 'en' ? 'Today\'s Summary:' : 'ملخص اليوم:'}
+                            </span>
+                            <span className="font-semibold text-gray-800">
+                              {presentToday} / {approvedPlayers.length} {lang === 'en' ? 'Present' : 'حاضر'}
+                              {' '}({Math.round((presentToday / approvedPlayers.length) * 100)}%)
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // TRAINING CALENDAR PAGE (All users)
+  if (currentPage === 'training-calendar') {
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+    // Get training sessions for selected month
+    const monthSessions = posts.filter(post => {
+      if (post.type !== 'training_session' && post.type !== 'training_group') return false;
+      if (!post.date) return false;
+      
+      const postDate = new Date(post.date);
+      return postDate.getMonth() === selectedMonth && postDate.getFullYear() === selectedYear;
+    });
+
+    // Generate calendar days
+    const firstDay = new Date(selectedYear, selectedMonth, 1);
+    const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const days = [];
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(i);
+    }
+
+    const getSessionsForDay = (day) => {
+      const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      return monthSessions.filter(s => s.date === dateStr);
+    };
+
+    const monthNames = lang === 'en' 
+      ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      : ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    
+    const dayNames = lang === 'en'
+      ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      : ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {lang === 'en' ? 'Training Calendar' : 'تقويم التدريبات'}
+            </h2>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  if (selectedMonth === 0) {
+                    setSelectedMonth(11);
+                    setSelectedYear(selectedYear - 1);
+                  } else {
+                    setSelectedMonth(selectedMonth - 1);
+                  }
+                }}
+                className="p-2 bg-white rounded-lg hover:bg-gray-100 transition shadow">
+                <ChevronLeft size={20} />
+              </button>
+              <span className="text-lg font-semibold min-w-[200px] text-center">
+                {monthNames[selectedMonth]} {selectedYear}
+              </span>
+              <button
+                onClick={() => {
+                  if (selectedMonth === 11) {
+                    setSelectedMonth(0);
+                    setSelectedYear(selectedYear + 1);
+                  } else {
+                    setSelectedMonth(selectedMonth + 1);
+                  }
+                }}
+                className="p-2 bg-white rounded-lg hover:bg-gray-100 transition shadow">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-2 mb-2">
+              {dayNames.map(day => (
+                <div key={day} className="text-center font-semibold text-gray-600 text-sm py-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-2">
+              {days.map((day, index) => {
+                if (day === null) {
+                  return <div key={`empty-${index}`} className="aspect-square" />;
+                }
+                
+                const daySessions = getSessionsForDay(day);
+                const isToday = 
+                  day === new Date().getDate() && 
+                  selectedMonth === new Date().getMonth() && 
+                  selectedYear === new Date().getFullYear();
+                
+                return (
+                  <div
+                    key={day}
+                    className={`aspect-square border-2 rounded-lg p-2 transition ${
+                      isToday 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : daySessions.length > 0
+                        ? 'border-green-300 bg-green-50 hover:bg-green-100 cursor-pointer'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    }`}>
+                    <div className="flex flex-col h-full">
+                      <span className={`text-sm font-semibold ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
+                        {day}
+                      </span>
+                      {daySessions.length > 0 && (
+                        <div className="flex-1 flex flex-col justify-center gap-0.5 mt-1">
+                          {daySessions.slice(0, 2).map((session, i) => (
+                            <div
+                              key={session.id}
+                              className={`text-xs px-1 py-0.5 rounded truncate ${
+                                session.type === 'training_session'
+                                  ? 'bg-green-200 text-green-800'
+                                  : 'bg-blue-200 text-blue-800'
+                              }`}
+                              title={lang === 'en' ? session.title : (session.titleAr || session.title)}>
+                              {session.time} {session.type === 'training_session' ? '📅' : '👥'}
+                            </div>
+                          ))}
+                          {daySessions.length > 2 && (
+                            <div className="text-xs text-gray-600 text-center">
+                              +{daySessions.length - 2}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Sessions List for Selected Month */}
+          {monthSessions.length > 0 && (
+            <div className="mt-6 bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                {lang === 'en' ? 'Sessions This Month' : 'الجلسات هذا الشهر'} ({monthSessions.length})
+              </h3>
+              <div className="space-y-3">
+                {monthSessions
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))
+                  .map(session => (
+                  <div key={session.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {lang === 'en' ? session.title : (session.titleAr || session.title)}
+                        </h4>
+                        <div className="flex flex-wrap gap-2 text-sm">
+                          <span className={`px-2 py-1 rounded-full font-medium ${
+                            session.type === 'training_session'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {session.type === 'training_session' 
+                              ? (lang === 'en' ? '📅 Session' : '📅 جلسة')
+                              : (lang === 'en' ? '👥 Group' : '👥 مجموعة')
+                            }
+                          </span>
+                          <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
+                            📅 {session.date}
+                          </span>
+                          {session.time && (
+                            <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
+                              🕐 {session.time}
+                            </span>
+                          )}
+                          {session.location && (
+                            <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
+                              📍 {lang === 'en' ? session.location : (session.locationAr || session.location)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {session.registrations && (
+                        <div className="text-right ml-4">
+                          <p className="text-xs text-gray-600">{lang === 'en' ? 'Registered' : 'مسجلون'}</p>
+                          <p className="text-lg font-bold text-blue-600">
+                            {session.registrations.filter(r => r.status === 'approved').length}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
