@@ -219,21 +219,44 @@ function LandingPage({
         className="px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
         {lang === 'en' ? '🇪🇬 AR' : '🇬🇧 EN'}
       </button>
-      <button 
-        onClick={() => setCurrentPage('login')}
-        className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
-        {t.signIn}
-      </button>
-      <button 
-        onClick={() => {
-          window.open(
-            'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
-            '_blank'
-          );
-        }}
-        className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
-        {t.applyNow}
-      </button>
+      
+      {user ? (
+        // Logged in - show user info and logout
+        <>
+          <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+            <User size={16} className="text-blue-700" />
+            <span className="text-sm font-medium text-gray-800">
+              {lang === 'en' ? user.name : (user.nameAr || user.name)}
+            </span>
+          </div>
+          <button 
+            onClick={() => {
+              setCurrentPage(user.role === 'player' ? 'player-home' : 'admin-dashboard');
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md text-sm">
+            {lang === 'en' ? 'Dashboard' : 'لوحة التحكم'}
+          </button>
+        </>
+      ) : (
+        // Not logged in - show login and apply buttons
+        <>
+          <button 
+            onClick={() => setCurrentPage('login')}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
+            {t.signIn}
+          </button>
+          <button 
+            onClick={() => {
+              window.open(
+                'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+                '_blank'
+              );
+            }}
+            className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
+            {t.applyNow}
+          </button>
+        </>
+      )}
     </div>
   </div>
 </div>
@@ -782,6 +805,14 @@ export default function AMVACompleteApp() {
         role: 'admin',
         name: 'Coach Ahmed Mostafa',
         nameAr: 'المدرب أحمد مصطفى'
+      },
+      'admin@demo.com': {
+        id: 'admin2',
+        email: 'admin@demo.com',
+        password: 'admin123',
+        role: 'admin',
+        name: 'Admin User',
+        nameAr: 'مدير النظام'
       }
     };
   });
