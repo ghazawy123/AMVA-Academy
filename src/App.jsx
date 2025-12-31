@@ -4279,32 +4279,23 @@ if (currentPage === 'login') {
           </div>
         )}
 
-        {/* Media */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              {lang === 'en' ? 'Image URL' : 'رابط الصورة'}
-            </label>
-            <input
-              type="url"
-              value={newPost.image || ''}
-              onChange={(e) => setNewPost({...newPost, image: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              {lang === 'en' ? 'Video URL (YouTube)' : 'رابط الفيديو (يوتيوب)'}
-            </label>
-            <input
-              type="url"
-              value={newPost.videoUrl}
-              onChange={(e) => setNewPost({...newPost, videoUrl: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-              placeholder="https://youtube.com/embed/..."
-            />
-          </div>
+        {/* Attachment (for all posts) */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            {lang === 'en' ? 'Attachment (Optional)' : 'مرفق (اختياري)'}
+          </label>
+          <input
+            type="url"
+            value={newPost.attachment}
+            onChange={(e) => setNewPost({...newPost, attachment: e.target.value})}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+            placeholder={lang === 'en' ? 'Image, YouTube, or Instagram URL...' : 'رابط صورة أو يوتيوب أو إنستغرام...'}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {lang === 'en' 
+              ? '💡 Paste any image, YouTube, or Instagram URL - we\'ll detect it automatically!' 
+              : '💡 الصق أي رابط صورة أو يوتيوب أو إنستغرام - سنكتشفه تلقائيًا!'}
+          </p>
         </div>
 
         {/* Submit Buttons */}
@@ -4318,7 +4309,10 @@ if (currentPage === 'login') {
           <button
             type="submit"
             className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition shadow-lg">
-            {lang === 'en' ? '✓ Create Post' : '✓ إنشاء المنشور'}
+            {modalType === 'post' 
+              ? (lang === 'en' ? '✓ Create Post' : '✓ إنشاء منشور')
+              : (lang === 'en' ? '✓ Create Session' : '✓ إنشاء جلسة')
+            }
           </button>
         </div>
       </form>
@@ -5095,7 +5089,7 @@ if (currentPage === 'login') {
                   <button
                     type="submit"
                     className="flex-1 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transition shadow-lg">
-                    {lang === 'en' ? '✓ Create Post' : '✓ إنشاء منشور'}
+                    {lang === 'en' ? '✓ Create Session' : '✓ إنشاء جلسة'}
                   </button>
                   <button
                     type="button"
