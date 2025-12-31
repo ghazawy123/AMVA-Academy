@@ -2287,12 +2287,12 @@ const handleCreatePost = (e) => {
     <div className="bg-white border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
+          <button onClick={() => setCurrentPage('landing')} className="flex items-center gap-3 hover:opacity-80 transition">
             <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-yellow-400 font-bold text-lg">AMVA</span>
             </div>
             <h1 className="text-lg font-bold text-blue-700">AMVA</h1>
-          </div>
+          </button>
           
           <div className="flex items-center gap-2">
             <button 
@@ -2306,13 +2306,13 @@ const handleCreatePost = (e) => {
                 {/* Player Navigation */}
                 {user.role === 'player' && (
                   <>
-                    <button onClick={() => setCurrentPage('player-home')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-home' ? 'bg-blue-100' : ''}`}
+                    <button onClick={() => setCurrentPage('landing')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
                       title={t.home}>
                       <Home size={20} className="text-blue-700" />
                     </button>
-                    <button onClick={() => setCurrentPage('player-profile')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-profile' ? 'bg-blue-100' : ''}`}
+                    <button onClick={() => setCurrentPage('player-home')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-home' || currentPage === 'player-profile' ? 'bg-blue-100' : ''}`}
                       title={t.profile}>
                       <User size={20} className="text-blue-700" />
                     </button>
@@ -2337,6 +2337,11 @@ const handleCreatePost = (e) => {
                 {/* Admin Navigation */}
                 {isAdmin && (
                   <>
+                    <button onClick={() => setCurrentPage('landing')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
+                      title={lang === 'en' ? 'View Homepage' : 'عرض الصفحة الرئيسية'}>
+                      <Eye size={20} className="text-blue-700" />
+                    </button>
                     <button onClick={() => setCurrentPage('admin-dashboard')} 
                       className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'admin-dashboard' ? 'bg-blue-100' : ''}`}
                       title={t.adminDashboard}>
