@@ -21,7 +21,7 @@ function LandingPage({
   setLang,
   setCurrentPage,
   NotificationToast,
-  showNotification,
+  addNotification,
   posts = [],
   user
 }) {
@@ -408,7 +408,7 @@ const allPosts = [
                 {(post.type === 'training_session' || post.type === 'training_group') && post.visibility === 'members' && user && user.role === 'player' && (
                   <button 
                     onClick={() => {
-                      showNotification(
+                      addNotification(
                         lang === 'en' 
                           ? 'Join request will be sent in Part 3!' 
                           : 'سيتم إرسال طلب الانضمام في الجزء 3!',
@@ -1630,7 +1630,7 @@ const handleCreatePost = (e) => {
   
   // Validation
   if (!newPost.title || !newPost.content) {
-    showNotification(lang === 'en' ? 'Please fill in all required fields' : 'يرجى ملء جميع الحقول المطلوبة', 'error');
+    addNotification(lang === 'en' ? 'Please fill in all required fields' : 'يرجى ملء جميع الحقول المطلوبة', 'error');
     return;
   }
   
@@ -1684,7 +1684,7 @@ const handleCreatePost = (e) => {
   setShowCreatePostModal(false);
   
   // Success notification
-  showNotification(
+  addNotification(
     lang === 'en' ? 'Post created successfully!' : 'تم إنشاء المنشور بنجاح!',
     'success'
   );
@@ -4153,7 +4153,7 @@ if (currentPage === 'landing') {
       setLang={setLang}
       setCurrentPage={setCurrentPage}
       NotificationToast={NotificationToast}
-      showNotification={showNotification}
+      addNotification={addNotification}
       posts={posts}
       user={user}
     />
