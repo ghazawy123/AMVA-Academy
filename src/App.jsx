@@ -1125,7 +1125,9 @@ const [newPost, setNewPost] = useState({
   titleAr: '',
   content: '',
   contentAr: '',
-  type: 'announcement', // announcement, training_session, training_group
+  type: 'post', // 'post' or 'training'
+  category: 'announcement', // For posts: announcement, educational, promotional, events, updates
+  trainingType: 'training_session', // For training: training_session, training_group
   visibility: 'public', // public, members
   date: '',
   time: '',
@@ -1134,8 +1136,9 @@ const [newPost, setNewPost] = useState({
   maxParticipants: '',
   numberOfSessions: '',
   sessionDays: '',
-  image: null,
-  videoUrl: ''
+  imageUrl: '',
+  videoUrl: '',
+  instagramUrl: ''
 });
 
 // Save posts to localStorage whenever they change
@@ -1322,6 +1325,7 @@ useEffect(() => {
   // Manage News states
   const [editingPost, setEditingPost] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [modalType, setModalType] = useState('post'); // 'post' or 'training'
 
   // ============================================
   // PERSISTENCE - Save to localStorage
@@ -1753,6 +1757,14 @@ const handleCreatePost = (e) => {
     return;
   }
   
+  // Determine the actual type for the post
+  let actualType;
+  if (newPost.type === 'training') {
+    actualType = newPost.trainingType; // 'training_session' or 'training_group'
+  } else {
+    actualType = newPost.category; // 'announcement', 'educational', etc.
+  }
+  
   // Create post object
   const post = {
     id: `post${Date.now()}`,
@@ -1760,17 +1772,19 @@ const handleCreatePost = (e) => {
     titleAr: newPost.titleAr || newPost.title,
     content: newPost.content,
     contentAr: newPost.contentAr || newPost.content,
-    type: newPost.type,
+    type: actualType,
+    postType: newPost.type, // 'post' or 'training'
     visibility: newPost.visibility,
-    date: newPost.date || new Date().toISOString().split('T')[0],
+    date: newPost.date || null,
     time: newPost.time,
     location: newPost.location,
     locationAr: newPost.locationAr || newPost.location,
     maxParticipants: newPost.maxParticipants ? parseInt(newPost.maxParticipants) : null,
     numberOfSessions: newPost.numberOfSessions ? parseInt(newPost.numberOfSessions) : null,
     sessionDays: newPost.sessionDays,
-    image: newPost.image,
+    imageUrl: newPost.imageUrl,
     videoUrl: newPost.videoUrl,
+    instagramUrl: newPost.instagramUrl,
     author: user.name,
     authorAr: user.nameAr || user.name,
     createdAt: new Date().toISOString(),
@@ -1786,7 +1800,9 @@ const handleCreatePost = (e) => {
     titleAr: '',
     content: '',
     contentAr: '',
-    type: 'announcement',
+    type: 'post',
+    category: 'announcement',
+    trainingType: 'training_session',
     visibility: 'public',
     date: '',
     time: '',
@@ -1795,8 +1811,9 @@ const handleCreatePost = (e) => {
     maxParticipants: '',
     numberOfSessions: '',
     sessionDays: '',
-    image: null,
-    videoUrl: ''
+    imageUrl: '',
+    videoUrl: '',
+    instagramUrl: ''
   });
   
   // Close modal
@@ -3618,10 +3635,24 @@ if (currentPage === 'login') {
   <h2 className="text-2xl font-bold text-gray-800">{t.adminDashboard}</h2>
   <div className="flex items-center gap-2">
     <button 
-      onClick={() => setShowCreatePostModal(true)}
-      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 transition shadow-lg">
+      onClick={() => {
+        setModalType('post');
+        setNewPost({...newPost, type: 'post', category: 'announcement'});
+        setShowCreatePostModal(true);
+      }}
+      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2 transition shadow-lg">
       <Plus size={18} />
       {lang === 'en' ? 'Create Post' : 'إنشاء منشور'}
+    </button>
+    <button 
+      onClick={() => {
+        setModalType('training');
+        setNewPost({...newPost, type: 'training', trainingType: 'training_session'});
+        setShowCreatePostModal(true);
+      }}
+      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 transition shadow-lg">
+      <Plus size={18} />
+      {lang === 'en' ? 'Create Session' : 'إنشاء جلسة'}
     </button>
     <button 
       onClick={() => setCurrentPage('analytics')}
@@ -4534,9 +4565,11 @@ if (currentPage === 'login') {
             </h2>
             <button
               onClick={() => {
+                setModalType('training');
                 setNewPost({
                   ...newPost,
-                  type: 'training_session'
+                  type: 'training',
+                  trainingType: 'training_session'
                 });
                 setShowCreatePostModal(true);
               }}
@@ -4996,9 +5029,11 @@ if (currentPage === 'login') {
             <button
               onClick={() => {
                 setEditingPost(null);
+                setModalType('post');
+                setNewPost({...newPost, type: 'post', category: 'announcement'});
                 setShowCreatePostModal(true);
               }}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2">
               <Plus size={20} />
               {lang === 'en' ? 'Create New Post' : 'إنشاء منشور جديد'}
             </button>
