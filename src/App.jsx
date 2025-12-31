@@ -81,13 +81,15 @@ const allPosts = [
   })),
   ...newsPosts
 ].filter(post => {
-  // Show public posts to everyone
+  // Always show public posts (to everyone - logged in or not)
   if (post.visibility === 'public' || !post.visibility) return true;
   
-  // Show members-only posts only to logged-in players
-  if (post.visibility === 'members' && user && user.role === 'player') return true;
+  // Show members-only posts to logged-in users (players, coaches, admins)
+  if (post.visibility === 'members') {
+    return user !== null;
+  }
   
-  // Hide members posts from non-logged-in users
+  // Default: hide (not logged in)
   return false;
 });
 
