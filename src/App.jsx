@@ -54,6 +54,33 @@ const getCategoryDisplay = (category) => {
   return categories[category] || categories.announcement;
 };
 
+// Helper function to detect attachment type
+const detectAttachmentType = (url) => {
+  if (!url) return null;
+  
+  // YouTube
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    return 'youtube';
+  }
+  
+  // Instagram
+  if (url.includes('instagram.com')) {
+    return 'instagram';
+  }
+  
+  // Image (common image extensions)
+  if (url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+    return 'image';
+  }
+  
+  // Default to image if it's a URL
+  if (url.startsWith('http')) {
+    return 'image';
+  }
+  
+  return null;
+};
+
 // ============================================
 // OPTION C HOME PAGE - FULL IMPLEMENTATION
 // Replace the landing page section (lines 1594-1677) with this
@@ -475,8 +502,45 @@ function LandingPage({
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">{lang === 'en' ? post.title : (post.titleAr || post.title)}</h3>
                 <p className="text-gray-700 text-lg mb-4 leading-relaxed">{lang === 'en' ? post.content : (post.contentAr || post.content)}</p>
 
-                {/* Image */}
-                {post.imageUrl && (
+                {/* Attachment Display - Auto-detect type */}
+                {post.attachment && post.attachmentType === 'image' && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    <img 
+                      src={post.attachment} 
+                      alt={post.title}
+                      className="w-full h-auto"
+                      onError={(e) => e.target.style.display = 'none'}
+                    />
+                  </div>
+                )}
+
+                {/* YouTube Embed */}
+                {post.attachment && post.attachmentType === 'youtube' && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    <iframe
+                      src={getYouTubeEmbedUrl(post.attachment)}
+                      className="w-full aspect-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+
+                {/* Instagram Embed */}
+                {post.attachment && post.attachmentType === 'instagram' && (
+                  <div className="mb-4">
+                    <iframe
+                      src={getInstagramEmbedUrl(post.attachment)}
+                      className="w-full"
+                      style={{ minHeight: '500px', border: 'none', overflow: 'hidden' }}
+                      scrolling="no"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+                
+                {/* Legacy support for old posts with separate URL fields */}
+                {!post.attachment && post.imageUrl && (
                   <div className="mb-4 rounded-xl overflow-hidden">
                     <img 
                       src={post.imageUrl} 
@@ -486,9 +550,7 @@ function LandingPage({
                     />
                   </div>
                 )}
-
-                {/* YouTube Embed */}
-                {post.videoUrl && getYouTubeEmbedUrl(post.videoUrl) && (
+                {!post.attachment && post.videoUrl && getYouTubeEmbedUrl(post.videoUrl) && (
                   <div className="mb-4 rounded-xl overflow-hidden">
                     <iframe
                       src={getYouTubeEmbedUrl(post.videoUrl)}
@@ -498,9 +560,7 @@ function LandingPage({
                     />
                   </div>
                 )}
-
-                {/* Instagram Embed */}
-                {post.instagramUrl && getInstagramEmbedUrl(post.instagramUrl) && (
+                {!post.attachment && post.instagramUrl && getInstagramEmbedUrl(post.instagramUrl) && (
                   <div className="mb-4">
                     <iframe
                       src={getInstagramEmbedUrl(post.instagramUrl)}
@@ -1214,9 +1274,7 @@ const [newPost, setNewPost] = useState({
   maxParticipants: '',
   numberOfSessions: '',
   sessionDays: '',
-  imageUrl: '',
-  videoUrl: '',
-  instagramUrl: ''
+  attachment: '' // Single field for image, YouTube, or Instagram URL
 });
 
 // Save posts to localStorage whenever they change
@@ -1860,9 +1918,8 @@ const handleCreatePost = (e) => {
     maxParticipants: newPost.maxParticipants ? parseInt(newPost.maxParticipants) : null,
     numberOfSessions: newPost.numberOfSessions ? parseInt(newPost.numberOfSessions) : null,
     sessionDays: newPost.sessionDays,
-    imageUrl: newPost.imageUrl,
-    videoUrl: newPost.videoUrl,
-    instagramUrl: newPost.instagramUrl,
+    attachment: newPost.attachment,
+    attachmentType: detectAttachmentType(newPost.attachment),
     author: user.name,
     authorAr: user.nameAr || user.name,
     createdAt: new Date().toISOString(),
@@ -1889,9 +1946,7 @@ const handleCreatePost = (e) => {
     maxParticipants: '',
     numberOfSessions: '',
     sessionDays: '',
-    imageUrl: '',
-    videoUrl: '',
-    instagramUrl: ''
+    attachment: ''
   });
   
   // Close modal
@@ -4103,45 +4158,24 @@ if (currentPage === 'login') {
           </div>
         </div>
 
-        {/* Media URLs (for posts) */}
+        {/* Attachment (for posts) */}
         {modalType === 'post' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                {lang === 'en' ? 'Image URL' : 'رابط الصورة'}
-              </label>
-              <input
-                type="url"
-                value={newPost.imageUrl}
-                onChange={(e) => setNewPost({...newPost, imageUrl: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                placeholder="https://..."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                {lang === 'en' ? 'YouTube URL' : 'رابط يوتيوب'}
-              </label>
-              <input
-                type="url"
-                value={newPost.videoUrl}
-                onChange={(e) => setNewPost({...newPost, videoUrl: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                placeholder="https://youtube.com/..."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                {lang === 'en' ? 'Instagram URL' : 'رابط إنستغرام'}
-              </label>
-              <input
-                type="url"
-                value={newPost.instagramUrl}
-                onChange={(e) => setNewPost({...newPost, instagramUrl: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                placeholder="https://instagram.com/..."
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Attachment (Optional)' : 'مرفق (اختياري)'}
+            </label>
+            <input
+              type="url"
+              value={newPost.attachment}
+              onChange={(e) => setNewPost({...newPost, attachment: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              placeholder={lang === 'en' ? 'Image, YouTube, or Instagram URL...' : 'رابط صورة أو يوتيوب أو إنستغرام...'}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {lang === 'en' 
+                ? '💡 Paste any image, YouTube, or Instagram URL - we\'ll detect it automatically!' 
+                : '💡 الصق أي رابط صورة أو يوتيوب أو إنستغرام - سنكتشفه تلقائيًا!'}
+            </p>
           </div>
         )}
 
