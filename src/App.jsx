@@ -21,7 +21,9 @@ function LandingPage({
   setLang,
   setCurrentPage,
   NotificationToast,
-  showNotification
+  showNotification,
+  posts = [],
+  user
 }) {
 
   const [activeSection, setActiveSection] = useState('hero');
@@ -67,6 +69,27 @@ function LandingPage({
       author: 'Coach Ahmed'
     }
   ]);
+
+  // Combine static posts with created posts from admin
+const allPosts = [
+  ...posts.map(post => ({
+    ...post,
+    title: lang === 'en' ? post.title : (post.titleAr || post.title),
+    content: lang === 'en' ? post.content : (post.contentAr || post.content),
+    location: lang === 'en' ? post.location : (post.locationAr || post.location),
+    author: lang === 'en' ? post.author : (post.authorAr || post.author)
+  })),
+  ...newsPosts
+].filter(post => {
+  // Show public posts to everyone
+  if (post.visibility === 'public' || !post.visibility) return true;
+  
+  // Show members-only posts only to logged-in players
+  if (post.visibility === 'members' && user && user.role === 'player') return true;
+  
+  // Hide members posts from non-logged-in users
+  return false;
+});
 
   const [galleryItems, setGalleryItems] = useState([
     {
@@ -271,7 +294,7 @@ function LandingPage({
           </div>
 
           <div className="space-y-6">
-            {newsPosts.map(post => (
+            {allPosts.map(post => (
               <div key={post.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -286,15 +309,85 @@ function LandingPage({
                       {lang === 'en' ? '🏐 Training Group' : '🏐 مجموعة تدريب'}
                     </span>
                   )}
-                  {post.type === 'achievement' && (
+                 {post.type === 'achievement' && (
                     <span className="ml-auto px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
                       {lang === 'en' ? '🏆 Achievement' : '🏆 إنجاز'}
+                    </span>
+                  )}
+                  {post.type === 'training_session' && (
+                    <span className="ml-auto px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                      {lang === 'en' ? '📅 Training Session' : '📅 جلسة تدريب'}
+                    </span>
+                  )}
+                  {post.visibility === 'members' && (
+                    <span className="ml-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">
+                      {lang === 'en' ? '🔒 Members Only' : '🔒 للأعضاء فقط'}
                     </span>
                   )}
                 </div>
 
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">{post.title}</h3>
                 <p className="text-gray-700 text-lg mb-4 leading-relaxed">{post.content}</p>
+
+                {/* Training Details */}
+                {(post.type === 'training_session' || post.type === 'training_group') && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 p-4 bg-gray-50 rounded-xl">
+                    {post.date && (
+                      <div className="flex items-center gap-2">
+                        <Calendar size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Date' : 'التاريخ'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.date}</p>
+                        </div>
+                      </div>
+                    )}
+                    {post.time && (
+                      <div className="flex items-center gap-2">
+                        <Clock size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Time' : 'الوقت'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.time}</p>
+                        </div>
+                      </div>
+                    )}
+                    {post.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPin size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Location' : 'الموقع'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.location}</p>
+                        </div>
+                      </div>
+                    )}
+                    {post.maxParticipants && (
+                      <div className="flex items-center gap-2">
+                        <Users size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Max' : 'الحد الأقصى'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.maxParticipants}</p>
+                        </div>
+                      </div>
+                    )}
+                    {post.numberOfSessions && (
+                      <div className="flex items-center gap-2">
+                        <Target size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Sessions' : 'الجلسات'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.numberOfSessions}</p>
+                        </div>
+                      </div>
+                    )}
+                    {post.sessionDays && (
+                      <div className="flex items-center gap-2">
+                        <Calendar size={18} className="text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-500">{lang === 'en' ? 'Days' : 'الأيام'}</p>
+                          <p className="text-sm font-semibold text-gray-800">{post.sessionDays}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {post.image && (
                   <img src={post.image} alt={post.title} className="w-full h-64 object-cover rounded-xl mb-4" />
@@ -311,33 +404,39 @@ function LandingPage({
                   </div>
                 )}
 
-                {post.type === 'training_group' && (
+                {/* Join Button for Training Posts (Members Only) */}
+                {(post.type === 'training_session' || post.type === 'training_group') && post.visibility === 'members' && user && user.role === 'player' && (
                   <button 
                     onClick={() => {
-                      setCurrentPage('player-training');
+                      showNotification(
+                        lang === 'en' 
+                          ? 'Join request will be sent in Part 3!' 
+                          : 'سيتم إرسال طلب الانضمام في الجزء 3!',
+                        'info'
+                      );
                     }}
-                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg">
-                    {lang === 'en' ? '🏐 Join Training Group' : '🏐 انضم للمجموعة التدريبية'}
+                    className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition shadow-lg">
+                    {lang === 'en' ? '✓ Join Training' : '✓ انضم للتدريب'}
                   </button>
                 )}
 
-                <div className="flex gap-4 mt-4 pt-4 border-t border-gray-200">
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                    <span>👍</span>
-                    <span className="text-sm font-medium">{lang === 'en' ? 'Like' : 'إعجاب'}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                    <span>💬</span>
-                    <span className="text-sm font-medium">{lang === 'en' ? 'Comment' : 'تعليق'}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                    <span>↗️</span>
-                    <span className="text-sm font-medium">{lang === 'en' ? 'Share' : 'مشاركة'}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                {/* Social Buttons for Public Posts Only */}
+                {(!post.visibility || post.visibility === 'public') && (
+                  <div className="flex gap-4 mt-4 pt-4 border-t border-gray-200">
+                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                      <span>👍</span>
+                      <span className="text-sm font-medium">{lang === 'en' ? 'Like' : 'إعجاب'}</span>
+                    </button>
+                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                      <span>💬</span>
+                      <span className="text-sm font-medium">{lang === 'en' ? 'Comment' : 'تعليق'}</span>
+                    </button>
+                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                      <span>↗️</span>
+                      <span className="text-sm font-medium">{lang === 'en' ? 'Share' : 'مشاركة'}</span>
+                    </button>
+                  </div>
+                )}
 
           <div className="text-center mt-8">
             <button 
@@ -4051,6 +4150,9 @@ if (currentPage === 'landing') {
       setLang={setLang}
       setCurrentPage={setCurrentPage}
       NotificationToast={NotificationToast}
+      showNotification={showNotification}
+      posts={posts}
+      user={user}
     />
   );
 }
