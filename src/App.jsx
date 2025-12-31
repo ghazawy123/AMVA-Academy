@@ -419,24 +419,7 @@ const allPosts = [
                     {lang === 'en' ? '✓ Join Training' : '✓ انضم للتدريب'}
                   </button>
                 )}
-
-                {/* Social Buttons for Public Posts Only */}
-                {(!post.visibility || post.visibility === 'public') && (
-                  <div className="flex gap-4 mt-4 pt-4 border-t border-gray-200">
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                      <span>👍</span>
-                      <span className="text-sm font-medium">{lang === 'en' ? 'Like' : 'إعجاب'}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                      <span>💬</span>
-                      <span className="text-sm font-medium">{lang === 'en' ? 'Comment' : 'تعليق'}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
-                      <span>↗️</span>
-                      <span className="text-sm font-medium">{lang === 'en' ? 'Share' : 'مشاركة'}</span>
-                    </button>
-                  </div>
-                )}
+                
               </div>
             ))}
           </div>
