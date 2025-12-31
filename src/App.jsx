@@ -10,6 +10,51 @@ import {
 } from 'lucide-react';
 
 // ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+// Helper function to get YouTube embed URL
+const getYouTubeEmbedUrl = (url) => {
+  if (!url) return null;
+  try {
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      return url;
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to get Instagram embed URL
+const getInstagramEmbedUrl = (url) => {
+  if (!url || !url.includes('instagram.com')) return null;
+  try {
+    const cleanUrl = url.replace(/\/$/, '');
+    return `${cleanUrl}/embed`;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to get category icon and name
+const getCategoryDisplay = (category) => {
+  const categories = {
+    announcement: { icon: '📢', nameEn: 'Announcement', nameAr: 'إعلان', color: 'purple' },
+    educational: { icon: '📚', nameEn: 'Educational', nameAr: 'تعليمي', color: 'blue' },
+    promotional: { icon: '🎯', nameEn: 'Promotional', nameAr: 'ترويجي', color: 'orange' },
+    events: { icon: '🎉', nameEn: 'Events', nameAr: 'فعاليات', color: 'pink' },
+    updates: { icon: '📰', nameEn: 'Updates', nameAr: 'تحديثات', color: 'teal' }
+  };
+  return categories[category] || categories.announcement;
+};
+
+// ============================================
 // OPTION C HOME PAGE - FULL IMPLEMENTATION
 // Replace the landing page section (lines 1594-1677) with this
 // ============================================
@@ -1781,48 +1826,6 @@ useEffect(() => {
   };
 
   // Handle creating a new post
-// Helper function to get YouTube embed URL
-const getYouTubeEmbedUrl = (url) => {
-  if (!url) return null;
-  try {
-    let videoId = '';
-    if (url.includes('youtube.com/watch?v=')) {
-      videoId = url.split('v=')[1].split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1].split('?')[0];
-    } else if (url.includes('youtube.com/embed/')) {
-      return url;
-    }
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-  } catch {
-    return null;
-  }
-};
-
-// Helper function to get Instagram embed URL
-const getInstagramEmbedUrl = (url) => {
-  if (!url || !url.includes('instagram.com')) return null;
-  try {
-    // Remove trailing slash
-    const cleanUrl = url.replace(/\/$/, '');
-    return `${cleanUrl}/embed`;
-  } catch {
-    return null;
-  }
-};
-
-// Helper function to get category icon and name
-const getCategoryDisplay = (category) => {
-  const categories = {
-    announcement: { icon: '📢', nameEn: 'Announcement', nameAr: 'إعلان', color: 'purple' },
-    educational: { icon: '📚', nameEn: 'Educational', nameAr: 'تعليمي', color: 'blue' },
-    promotional: { icon: '🎯', nameEn: 'Promotional', nameAr: 'ترويجي', color: 'orange' },
-    events: { icon: '🎉', nameEn: 'Events', nameAr: 'فعاليات', color: 'pink' },
-    updates: { icon: '📰', nameEn: 'Updates', nameAr: 'تحديثات', color: 'teal' }
-  };
-  return categories[category] || categories.announcement;
-};
-
 const handleCreatePost = (e) => {
   e.preventDefault();
   
