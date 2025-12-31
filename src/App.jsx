@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, Calendar, CreditCard, MapPin, Clock, Mail, Phone, 
   CheckCircle, X, Plus, Edit2, Trash2, Search, Filter,
@@ -71,27 +71,29 @@ function LandingPage({
   ]);
 
   // Combine static posts with created posts from admin
-const allPosts = [
-  ...posts.map(post => ({
-    ...post,
-    title: lang === 'en' ? post.title : (post.titleAr || post.title),
-    content: lang === 'en' ? post.content : (post.contentAr || post.content),
-    location: lang === 'en' ? post.location : (post.locationAr || post.location),
-    author: lang === 'en' ? post.author : (post.authorAr || post.author)
-  })),
-  ...newsPosts
-].filter(post => {
-  // Always show public posts (to everyone - logged in or not)
-  if (post.visibility === 'public' || !post.visibility) return true;
-  
-  // Show members-only posts to logged-in users (players, coaches, admins)
-  if (post.visibility === 'members') {
-    return user !== null;
-  }
-  
-  // Default: hide (not logged in)
-  return false;
-});
+  const allPosts = useMemo(() => {
+    return [
+      ...posts.map(post => ({
+        ...post,
+        title: lang === 'en' ? post.title : (post.titleAr || post.title),
+        content: lang === 'en' ? post.content : (post.contentAr || post.content),
+        location: lang === 'en' ? post.location : (post.locationAr || post.location),
+        author: lang === 'en' ? post.author : (post.authorAr || post.author)
+      })),
+      ...newsPosts
+    ].filter(post => {
+      // Always show public posts (to everyone - logged in or not)
+      if (post.visibility === 'public' || !post.visibility) return true;
+      
+      // Show members-only posts to logged-in users (players, coaches, admins)
+      if (post.visibility === 'members') {
+        return user !== null;
+      }
+      
+      // Default: hide (not logged in)
+      return false;
+    });
+  }, [posts, newsPosts, lang, user]);
 
   const [galleryItems, setGalleryItems] = useState([
     {
@@ -2572,21 +2574,21 @@ if (currentPage === 'login') {
                 {t.latestNews}
               </h3>
               <button 
-                onClick={() => setCurrentPage('news-all')}
+                onClick={() => setCurrentPage('landing')}
                 className="text-blue-700 hover:text-blue-800 text-sm font-medium">
                 {lang === 'en' ? 'View All →' : 'عرض الكل ←'}
               </button>
             </div>
-            {news.length === 0 ? (
+            {posts.length === 0 && news.length === 0 ? (
               <p className="text-gray-600 text-center py-8">{t.noNewsYet}</p>
             ) : (
               <div className="space-y-4">
-                {news.slice(0, 3).map(n => (
+                {[...posts, ...news].slice(0, 3).map(n => (
                   <div key={n.id} className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg hover:shadow-md transition border-l-4 border-blue-700">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-bold text-gray-800 mb-1">{lang === 'en' ? n.title : n.titleAr}</h4>
-                        <p className="text-sm text-gray-600 mb-2">{lang === 'en' ? n.content : n.contentAr}</p>
+                        <h4 className="font-bold text-gray-800 mb-1">{lang === 'en' ? (n.title || n.titleAr) : (n.titleAr || n.title)}</h4>
+                        <p className="text-sm text-gray-600 mb-2">{lang === 'en' ? (n.content || n.contentAr) : (n.contentAr || n.content)}</p>
                         <div className="flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar size={12} />
@@ -2594,7 +2596,7 @@ if (currentPage === 'login') {
                           </span>
                           <span className="flex items-center gap-1">
                             <User size={12} />
-                            {n.author}
+                            {lang === 'en' ? (n.author || n.authorAr) : (n.authorAr || n.author)}
                           </span>
                           {n.category && (
                             <span className="px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-medium">
