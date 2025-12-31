@@ -23,6 +23,7 @@ function LandingPage({
   NotificationToast,
   addNotification,
   posts = [],
+  setPosts,
   user,
   handleLogout
 }) {
@@ -191,6 +192,60 @@ function LandingPage({
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
+
+  // Handle joining a training session/group
+  const handleJoinTraining = (post) => {
+    if (!user || user.role !== 'player') return;
+    
+    // Check if already registered
+    const existingRegistration = post.registrations?.find(reg => reg.playerId === user.id);
+    if (existingRegistration) {
+      addNotification(
+        lang === 'en' ? 'You already have a request for this training!' : 'لديك بالفعل طلب لهذا التدريب!',
+        'warning'
+      );
+      return;
+    }
+    
+    // Create registration request
+    const registration = {
+      playerId: user.id,
+      playerName: user.name,
+      playerNameAr: user.nameAr || user.name,
+      playerEmail: user.email,
+      status: 'pending', // pending, approved, rejected
+      requestDate: new Date().toISOString(),
+      approvedBy: null,
+      approvedDate: null,
+      rejectionReason: null
+    };
+    
+    // Update the post with new registration
+    const updatedPosts = posts.map(p => {
+      if (p.id === post.id) {
+        return {
+          ...p,
+          registrations: [...(p.registrations || []), registration]
+        };
+      }
+      return p;
+    });
+    
+    setPosts(updatedPosts);
+    
+    addNotification(
+      lang === 'en' 
+        ? 'Join request sent successfully! Wait for approval from coaches.' 
+        : 'تم إرسال طلب الانضمام بنجاح! انتظر الموافقة من المدربين.',
+      'success'
+    );
+  };
+
+  // Get registration status for a post
+  const getRegistrationStatus = (post) => {
+    if (!user || !post.registrations) return null;
+    return post.registrations.find(reg => reg.playerId === user.id);
   };
 
   return (
@@ -441,20 +496,45 @@ function LandingPage({
                 )}
 
                 {/* Join Button for Training Posts (Members Only) */}
-                {(post.type === 'training_session' || post.type === 'training_group') && post.visibility === 'members' && user && user.role === 'player' && (
-                  <button 
-                    onClick={() => {
-                      addNotification(
-                        lang === 'en' 
-                          ? 'Join request will be sent in Part 3!' 
-                          : 'سيتم إرسال طلب الانضمام في الجزء 3!',
-                        'info'
-                      );
-                    }}
-                    className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition shadow-lg">
-                    {lang === 'en' ? '✓ Join Training' : '✓ انضم للتدريب'}
-                  </button>
-                )}
+                {(post.type === 'training_session' || post.type === 'training_group') && post.visibility === 'members' && user && user.role === 'player' && (() => {
+                  const registration = getRegistrationStatus(post);
+                  
+                  if (registration?.status === 'approved') {
+                    return (
+                      <div className="w-full py-3 bg-green-100 border-2 border-green-500 text-green-800 rounded-xl font-bold text-center flex items-center justify-center gap-2">
+                        <CheckCircle size={20} />
+                        {lang === 'en' ? '✓ Registered' : '✓ مسجل'}
+                      </div>
+                    );
+                  }
+                  
+                  if (registration?.status === 'pending') {
+                    return (
+                      <div className="w-full py-3 bg-yellow-100 border-2 border-yellow-500 text-yellow-800 rounded-xl font-bold text-center flex items-center justify-center gap-2">
+                        <Clock size={20} />
+                        {lang === 'en' ? '⏳ Pending Approval' : '⏳ في انتظار الموافقة'}
+                      </div>
+                    );
+                  }
+                  
+                  if (registration?.status === 'rejected') {
+                    return (
+                      <div className="w-full py-3 bg-red-100 border-2 border-red-500 text-red-800 rounded-xl font-bold text-center flex items-center justify-center gap-2">
+                        <X size={20} />
+                        {lang === 'en' ? '✗ Request Declined' : '✗ تم رفض الطلب'}
+                      </div>
+                    );
+                  }
+                  
+                  // No registration - show Join button
+                  return (
+                    <button 
+                      onClick={() => handleJoinTraining(post)}
+                      className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition shadow-lg">
+                      {lang === 'en' ? '✓ Join Training' : '✓ انضم للتدريب'}
+                    </button>
+                  );
+                })()}
                 
               </div>
             ))}
@@ -2399,6 +2479,22 @@ const handleCreatePost = (e) => {
                         </span>
                       )}
                     </button>
+                    <button onClick={() => setCurrentPage('registration-requests')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg relative transition ${currentPage === 'registration-requests' ? 'bg-blue-100' : ''}`}
+                      title={lang === 'en' ? 'Registration Requests' : 'طلبات التسجيل'}>
+                      <Users size={20} className="text-blue-700" />
+                      {(() => {
+                        const pendingCount = posts.reduce((count, post) => {
+                          const pending = post.registrations?.filter(r => r.status === 'pending').length || 0;
+                          return count + pending;
+                        }, 0);
+                        return pendingCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {pendingCount}
+                          </span>
+                        );
+                      })()}
+                    </button>
                     <button onClick={() => setCurrentPage('sessions-manage')} 
                       className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'sessions-manage' ? 'bg-blue-100' : ''}`}
                       title={t.manageSessions}>
@@ -3778,6 +3874,215 @@ if (currentPage === 'login') {
   }
 
 
+  // REGISTRATION REQUESTS PAGE (Admin/Coach)
+  if (currentPage === 'registration-requests' && isAdmin) {
+    // Get all posts with pending registrations
+    const postsWithRequests = posts.filter(post => 
+      post.registrations && post.registrations.length > 0
+    );
+    
+    const pendingRequests = postsWithRequests.flatMap(post => 
+      post.registrations
+        .filter(reg => reg.status === 'pending')
+        .map(reg => ({ ...reg, post }))
+    );
+    
+    const handleApprove = (postId, playerId) => {
+      const updatedPosts = posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            registrations: post.registrations.map(reg => {
+              if (reg.playerId === playerId) {
+                return {
+                  ...reg,
+                  status: 'approved',
+                  approvedBy: user.name,
+                  approvedDate: new Date().toISOString()
+                };
+              }
+              return reg;
+            })
+          };
+        }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
+      addNotification(
+        lang === 'en' ? 'Registration approved successfully!' : 'تمت الموافقة على التسجيل بنجاح!',
+        'success'
+      );
+    };
+    
+    const handleReject = (postId, playerId, reason) => {
+      const updatedPosts = posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            registrations: post.registrations.map(reg => {
+              if (reg.playerId === playerId) {
+                return {
+                  ...reg,
+                  status: 'rejected',
+                  rejectedBy: user.name,
+                  rejectedDate: new Date().toISOString(),
+                  rejectionReason: reason || (lang === 'en' ? 'Request declined' : 'تم رفض الطلب')
+                };
+              }
+              return reg;
+            })
+          };
+        }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
+      addNotification(
+        lang === 'en' ? 'Registration rejected' : 'تم رفض التسجيل',
+        'info'
+      );
+    };
+    
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {lang === 'en' ? 'Registration Requests' : 'طلبات التسجيل'}
+            </h2>
+            <div className="px-4 py-2 bg-yellow-100 rounded-lg">
+              <span className="text-yellow-800 font-semibold">
+                {pendingRequests.length} {lang === 'en' ? 'Pending' : 'قيد الانتظار'}
+              </span>
+            </div>
+          </div>
+
+          {pendingRequests.length === 0 ? (
+            <div className="bg-white rounded-xl p-12 shadow-lg text-center">
+              <CheckCircle size={64} className="mx-auto text-green-500 mb-4" />
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                {lang === 'en' ? 'All Caught Up!' : 'تم الانتهاء من كل شيء!'}
+              </h3>
+              <p className="text-gray-600">
+                {lang === 'en' 
+                  ? 'No pending registration requests at the moment.'
+                  : 'لا توجد طلبات تسجيل معلقة في الوقت الحالي.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {pendingRequests.map((req, index) => (
+                <div key={`${req.post.id}-${req.playerId}`} className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-yellow-400">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {req.playerName.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-800">
+                            {lang === 'en' ? req.playerName : (req.playerNameAr || req.playerName)}
+                          </h3>
+                          <p className="text-sm text-gray-500">{req.playerEmail}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-50 rounded-lg p-4 mb-3">
+                        <p className="text-sm text-gray-600 mb-1">
+                          {lang === 'en' ? 'Requesting to join:' : 'يطلب الانضمام إلى:'}
+                        </p>
+                        <h4 className="font-bold text-gray-800 mb-2">
+                          {lang === 'en' ? req.post.title : (req.post.titleAr || req.post.title)}
+                        </h4>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          {req.post.type === 'training_session' && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                              {lang === 'en' ? '📅 Training Session' : '📅 جلسة تدريب'}
+                            </span>
+                          )}
+                          {req.post.type === 'training_group' && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                              {lang === 'en' ? '👥 Training Group' : '👥 مجموعة تدريب'}
+                            </span>
+                          )}
+                          {req.post.date && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              📅 {req.post.date}
+                            </span>
+                          )}
+                          {req.post.time && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              🕐 {req.post.time}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-gray-500">
+                        {lang === 'en' ? 'Requested on: ' : 'تم الطلب في: '}
+                        {new Date(req.requestDate).toLocaleDateString()} {new Date(req.requestDate).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleApprove(req.post.id, req.playerId)}
+                      className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                      <CheckCircle size={18} />
+                      {lang === 'en' ? 'Approve' : 'موافقة'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const reason = prompt(lang === 'en' ? 'Rejection reason (optional):' : 'سبب الرفض (اختياري):');
+                        handleReject(req.post.id, req.playerId, reason);
+                      }}
+                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                      <X size={18} />
+                      {lang === 'en' ? 'Reject' : 'رفض'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* View All Registrations */}
+          {postsWithRequests.length > 0 && (
+            <div className="mt-6 bg-white rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                {lang === 'en' ? 'All Registrations by Training' : 'جميع التسجيلات حسب التدريب'}
+              </h3>
+              <div className="space-y-4">
+                {postsWithRequests.map(post => (
+                  <div key={post.id} className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-bold text-gray-800 mb-2">
+                      {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                    </h4>
+                    <div className="flex gap-4 text-sm">
+                      <span className="text-green-700 font-medium">
+                        ✓ {post.registrations.filter(r => r.status === 'approved').length} {lang === 'en' ? 'Approved' : 'موافق عليه'}
+                      </span>
+                      <span className="text-yellow-700 font-medium">
+                        ⏳ {post.registrations.filter(r => r.status === 'pending').length} {lang === 'en' ? 'Pending' : 'معلق'}
+                      </span>
+                      <span className="text-red-700 font-medium">
+                        ✗ {post.registrations.filter(r => r.status === 'rejected').length} {lang === 'en' ? 'Rejected' : 'مرفوض'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // APPLICATIONS PAGE (Admin)
   if (currentPage === 'applications' && isAdmin) {
     const filteredApps = getFilteredApplications();
@@ -4478,6 +4783,7 @@ if (currentPage === 'landing') {
       NotificationToast={NotificationToast}
       addNotification={addNotification}
       posts={posts}
+      setPosts={setPosts}
       user={user}
       handleLogout={handleLogout}
     />
