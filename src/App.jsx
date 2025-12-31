@@ -437,6 +437,9 @@ const allPosts = [
                     </button>
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
 
           <div className="text-center mt-8">
             <button 
