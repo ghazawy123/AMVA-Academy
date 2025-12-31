@@ -1318,6 +1318,10 @@ useEffect(() => {
   const [attendanceFilterPeriod, setAttendanceFilterPeriod] = useState('all');
   const [newsFilterType, setNewsFilterType] = useState('all');
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Manage News states
+  const [editingPost, setEditingPost] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
   // ============================================
   // PERSISTENCE - Save to localStorage
@@ -4737,8 +4741,7 @@ if (currentPage === 'login') {
 
   // MANAGE NEWS PAGE (Admin/Coach)
   if (currentPage === 'news-manage' && isAdmin) {
-    const [editingPost, setEditingPost] = useState(null);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+    // Using component-level states: editingPost, setEditingPost, showDeleteConfirm, setShowDeleteConfirm
 
     const handleEditPost = (post) => {
       setEditingPost(post);
