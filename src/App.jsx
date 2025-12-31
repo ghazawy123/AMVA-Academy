@@ -1309,6 +1309,14 @@ useEffect(() => {
 
   // Notification State
   const [notifications, setNotifications] = useState([]);
+  
+  // Calendar states
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
+  // Filter states
+  const [attendanceFilterPeriod, setAttendanceFilterPeriod] = useState('all');
+  const [newsFilterType, setNewsFilterType] = useState('all');
   const [showNotifications, setShowNotifications] = useState(false);
 
   // ============================================
@@ -2529,6 +2537,11 @@ const handleCreatePost = (e) => {
                       title={t.analytics}>
                       <BarChart3 size={20} className="text-blue-700" />
                     </button>
+                    <button onClick={() => setCurrentPage('player-management')} 
+                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-management' ? 'bg-blue-100' : ''}`}
+                      title={lang === 'en' ? 'Manage Players' : 'إدارة اللاعبين'}>
+                      <Users size={20} className="text-blue-700" />
+                    </button>
                   </>
                 )}
                 
@@ -2800,18 +2813,17 @@ if (currentPage === 'login') {
     const missedSessions = totalSessions - attendedSessions;
     const attendanceRate = totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0;
 
-    // Filter options
-    const [filterPeriod, setFilterPeriod] = useState('all'); // all, month, week
+    // Using component-level state: attendanceFilterPeriod
 
     const getFilteredRecords = () => {
-      if (filterPeriod === 'all') return attendanceRecords;
+      if (attendanceFilterPeriod === 'all') return attendanceRecords;
       
       const now = new Date();
       const filterDate = new Date();
       
-      if (filterPeriod === 'week') {
+      if (attendanceFilterPeriod === 'week') {
         filterDate.setDate(now.getDate() - 7);
-      } else if (filterPeriod === 'month') {
+      } else if (attendanceFilterPeriod === 'month') {
         filterDate.setMonth(now.getMonth() - 1);
       }
       
@@ -2881,27 +2893,27 @@ if (currentPage === 'login') {
               </span>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setFilterPeriod('all')}
+                  onClick={() => setAttendanceFilterPeriod('all')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterPeriod === 'all'
+                    attendanceFilterPeriod === 'all'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
                   {lang === 'en' ? 'All Time' : 'كل الوقت'}
                 </button>
                 <button
-                  onClick={() => setFilterPeriod('month')}
+                  onClick={() => setAttendanceFilterPeriod('month')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterPeriod === 'month'
+                    attendanceFilterPeriod === 'month'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
                   {lang === 'en' ? 'Last Month' : 'الشهر الماضي'}
                 </button>
                 <button
-                  onClick={() => setFilterPeriod('week')}
+                  onClick={() => setAttendanceFilterPeriod('week')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterPeriod === 'week'
+                    attendanceFilterPeriod === 'week'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
@@ -4324,6 +4336,173 @@ if (currentPage === 'login') {
     );
   }
 
+  // MANAGE GROUPS PAGE (Admin/Coach)
+  if (currentPage === 'groups-manage' && isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            {lang === 'en' ? 'Manage Training Groups' : 'إدارة المجموعات التدريبية'}
+          </h2>
+          <div className="bg-white rounded-xl p-12 shadow-lg text-center">
+            <Users size={64} className="mx-auto text-blue-600 mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              {lang === 'en' ? 'Training Groups' : 'المجموعات التدريبية'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {lang === 'en' 
+                ? 'Manage your training groups here. Create groups from the "Manage Sessions" page.'
+                : 'أدر مجموعاتك التدريبية هنا. أنشئ مجموعات من صفحة "إدارة الجلسات".'}
+            </p>
+            <button
+              onClick={() => setCurrentPage('sessions-manage')}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+              {lang === 'en' ? 'Go to Manage Sessions' : 'انتقل إلى إدارة الجلسات'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // PLAYER MANAGEMENT PAGE (Admin only)
+  if (currentPage === 'player-management' && isAdmin) {
+    const handlePromoteToCoach = (email) => {
+      const updatedUsers = {...users};
+      if (updatedUsers[email]) {
+        updatedUsers[email].role = 'admin';
+        setUsers(updatedUsers);
+        addNotification(
+          lang === 'en' ? 'Player promoted to coach successfully!' : 'تم ترقية اللاعب إلى مدرب بنجاح!',
+          'success'
+        );
+      }
+    };
+
+    const handleDemoteToPlayer = (email) => {
+      const updatedUsers = {...users};
+      if (updatedUsers[email]) {
+        updatedUsers[email].role = 'player';
+        setUsers(updatedUsers);
+        addNotification(
+          lang === 'en' ? 'Coach demoted to player' : 'تم تخفيض رتبة المدرب إلى لاعب',
+          'info'
+        );
+      }
+    };
+
+    const players = Object.entries(users).filter(([_, u]) => u.role === 'player');
+    const coaches = Object.entries(users).filter(([_, u]) => u.role === 'admin');
+
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            {lang === 'en' ? 'Player & Coach Management' : 'إدارة اللاعبين والمدربين'}
+          </h2>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <Users size={24} className="text-blue-600" />
+                <span className="text-3xl font-bold text-blue-600">{players.length}</span>
+              </div>
+              <p className="text-sm font-medium text-gray-600">
+                {lang === 'en' ? 'Total Players' : 'إجمالي اللاعبين'}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <Star size={24} className="text-orange-600" />
+                <span className="text-3xl font-bold text-orange-600">{coaches.length}</span>
+              </div>
+              <p className="text-sm font-medium text-gray-600">
+                {lang === 'en' ? 'Total Coaches' : 'إجمالي المدربين'}
+              </p>
+            </div>
+          </div>
+
+          {/* Players List */}
+          <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              {lang === 'en' ? 'Players' : 'اللاعبون'}
+            </h3>
+            <div className="space-y-3">
+              {players.map(([email, player]) => (
+                <div key={email} className="p-4 bg-gray-50 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      {player.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {lang === 'en' ? player.name : (player.nameAr || player.name)}
+                      </p>
+                      <p className="text-sm text-gray-500">{email}</p>
+                      {player.position && (
+                        <p className="text-xs text-gray-600">
+                          {lang === 'en' ? player.position : (player.positionAr || player.position)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handlePromoteToCoach(email)}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition text-sm">
+                    {lang === 'en' ? '⭐ Promote to Coach' : '⭐ ترقية لمدرب'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Coaches List */}
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              {lang === 'en' ? 'Coaches' : 'المدربون'}
+            </h3>
+            <div className="space-y-3">
+              {coaches.map(([email, coach]) => (
+                <div key={email} className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      {coach.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-800">
+                          {lang === 'en' ? coach.name : (coach.nameAr || coach.name)}
+                        </p>
+                        <Star size={16} className="text-orange-600" />
+                      </div>
+                      <p className="text-sm text-gray-500">{email}</p>
+                      <p className="text-xs text-orange-700 font-medium">
+                        {lang === 'en' ? 'Coach' : 'مدرب'}
+                      </p>
+                    </div>
+                  </div>
+                  {email !== user.email && (
+                    <button
+                      onClick={() => handleDemoteToPlayer(email)}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition text-sm">
+                      {lang === 'en' ? 'Remove Coach Role' : 'إزالة دور المدرب'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // MANAGE SESSIONS PAGE (Admin/Coach)
   if (currentPage === 'sessions-manage' && isAdmin) {
     const trainingSessions = posts.filter(p => p.type === 'training_session' || p.type === 'training_group');
@@ -4626,11 +4805,10 @@ if (currentPage === 'login') {
       );
     };
 
-    // Filter posts by type
-    const [filterType, setFilterType] = useState('all');
-    const filteredPosts = filterType === 'all' 
+    // Using component-level state: newsFilterType
+    const filteredPosts = newsFilterType === 'all' 
       ? posts 
-      : posts.filter(p => p.type === filterType);
+      : posts.filter(p => p.type === newsFilterType);
 
     return (
       <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -4710,36 +4888,36 @@ if (currentPage === 'login') {
               </span>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setFilterType('all')}
+                  onClick={() => setNewsFilterType('all')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterType === 'all'
+                    newsFilterType === 'all'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
                   {lang === 'en' ? 'All' : 'الكل'}
                 </button>
                 <button
-                  onClick={() => setFilterType('announcement')}
+                  onClick={() => setNewsFilterType('announcement')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterType === 'announcement'
+                    newsFilterType === 'announcement'
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
                   {lang === 'en' ? 'Announcements' : 'إعلانات'}
                 </button>
                 <button
-                  onClick={() => setFilterType('training_session')}
+                  onClick={() => setNewsFilterType('training_session')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterType === 'training_session'
+                    newsFilterType === 'training_session'
                       ? 'bg-green-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
                   {lang === 'en' ? 'Sessions' : 'جلسات'}
                 </button>
                 <button
-                  onClick={() => setFilterType('training_group')}
+                  onClick={() => setNewsFilterType('training_group')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterType === 'training_group'
+                    newsFilterType === 'training_group'
                       ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}>
@@ -5160,8 +5338,7 @@ if (currentPage === 'login') {
 
   // TRAINING CALENDAR PAGE (All users)
   if (currentPage === 'training-calendar') {
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    // Using component-level states: selectedMonth, setSelectedMonth, selectedYear, setSelectedYear
 
     // Get training sessions for selected month
     const monthSessions = posts.filter(post => {
