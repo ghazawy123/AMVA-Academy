@@ -268,55 +268,57 @@ function LandingPage({
   </div>
 </div>
 
-      {/* SECTION 1: HERO */}
-      <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-16">
-        <div className="text-center px-4 max-w-5xl">
-          <div className="animate-fade-in">
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
-              {lang === 'en' ? 'Welcome to' : 'مرحباً بك في'}
-              <br/>
-              <span className="text-yellow-400">AMVA</span>
-            </h1>
-            <p className="text-2xl md:text-3xl text-blue-100 mb-8">{t.tagline}</p>
-            <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto">
-              {lang === 'en' 
-                ? 'Join Egypt\'s premier volleyball academy and train with professional coaches in world-class facilities.'
-                : 'انضم إلى أكاديمية الكرة الطائرة الرائدة في مصر وتدرب مع مدربين محترفين في منشآت عالمية المستوى.'}
-            </p>
-            
-            <div className="flex gap-4 justify-center flex-wrap mb-16">
-              <button 
-                onClick={() => scrollToSection('news')}
-                className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
-                {lang === 'en' ? 'Explore' : 'استكشف'} ↓
-              </button>
-            </div>
+      {/* SECTION 1: HERO - Only show when NOT logged in */}
+      {!user && (
+        <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-16">
+          <div className="text-center px-4 max-w-5xl">
+            <div className="animate-fade-in">
+              <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
+                {lang === 'en' ? 'Welcome to' : 'مرحباً بك في'}
+                <br/>
+                <span className="text-yellow-400">AMVA</span>
+              </h1>
+              <p className="text-2xl md:text-3xl text-blue-100 mb-8">{t.tagline}</p>
+              <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto">
+                {lang === 'en' 
+                  ? 'Join Egypt\'s premier volleyball academy and train with professional coaches in world-class facilities.'
+                  : 'انضم إلى أكاديمية الكرة الطائرة الرائدة في مصر وتدرب مع مدربين محترفين في منشآت عالمية المستوى.'}
+              </p>
+              
+              <div className="flex gap-4 justify-center flex-wrap mb-16">
+                <button 
+                  onClick={() => scrollToSection('news')}
+                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
+                  {lang === 'en' ? 'Explore' : 'استكشف'} ↓
+                </button>
+              </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.players}+</p>
-                <p className="text-white mt-2">{lang === 'en' ? 'Players' : 'لاعب'}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.years}</p>
-                <p className="text-white mt-2">{lang === 'en' ? 'Years' : 'سنوات'}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.locations}</p>
-                <p className="text-white mt-2">{lang === 'en' ? 'Locations' : 'مواقع'}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.coaches}</p>
-                <p className="text-white mt-2">{lang === 'en' ? 'Coaches' : 'مدربين'}</p>
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.players}+</p>
+                  <p className="text-white mt-2">{lang === 'en' ? 'Players' : 'لاعب'}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.years}</p>
+                  <p className="text-white mt-2">{lang === 'en' ? 'Years' : 'سنوات'}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.locations}</p>
+                  <p className="text-white mt-2">{lang === 'en' ? 'Locations' : 'مواقع'}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <p className="text-4xl font-bold text-yellow-400">{academyInfo.stats.coaches}</p>
+                  <p className="text-white mt-2">{lang === 'en' ? 'Coaches' : 'مدربين'}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* SECTION 2: NEWS FEED */}
-      <div id="news" className="min-h-screen bg-gray-50 py-20 px-4">
+      <div id="news" className={`min-h-screen bg-gray-50 py-20 px-4 ${user ? 'pt-32' : ''}`}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
