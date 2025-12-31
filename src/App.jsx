@@ -23,7 +23,8 @@ function LandingPage({
   NotificationToast,
   addNotification,
   posts = [],
-  user
+  user,
+  handleLogout
 }) {
 
   const [activeSection, setActiveSection] = useState('hero');
@@ -221,7 +222,7 @@ function LandingPage({
       </button>
       
       {user ? (
-        // Logged in - show user info and logout
+        // Logged in - show user info, dashboard and logout
         <>
           <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
             <User size={16} className="text-blue-700" />
@@ -235,6 +236,12 @@ function LandingPage({
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md text-sm">
             {lang === 'en' ? 'Dashboard' : 'لوحة التحكم'}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="p-2 bg-red-50 hover:bg-red-100 rounded-lg transition"
+            title={lang === 'en' ? 'Logout' : 'تسجيل الخروج'}>
+            <LogOut size={20} className="text-red-600" />
           </button>
         </>
       ) : (
@@ -2650,6 +2657,297 @@ if (currentPage === 'login') {
     );
   }
 
+  // MY REGISTRATIONS PAGE (Player)
+  if (currentPage === 'my-registrations' && user && user.role === 'player') {
+    // Get user's registered sessions and groups
+    const userRegistrations = posts.filter(post => 
+      post.registrations && post.registrations.some(reg => reg.playerId === user.id)
+    );
+
+    // Categorize by status
+    const pending = userRegistrations.filter(post => 
+      post.registrations.find(reg => reg.playerId === user.id)?.status === 'pending'
+    );
+    const approved = userRegistrations.filter(post => 
+      post.registrations.find(reg => reg.playerId === user.id)?.status === 'approved'
+    );
+    const rejected = userRegistrations.filter(post => 
+      post.registrations.find(reg => reg.playerId === user.id)?.status === 'rejected'
+    );
+
+    // Categorize approved by time
+    const now = new Date();
+    const upcoming = approved.filter(post => post.date && new Date(post.date) > now);
+    const past = approved.filter(post => post.date && new Date(post.date) < now);
+    const ongoing = approved.filter(post => !post.date); // No specific date = ongoing
+
+    return (
+      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Navigation />
+        <NotificationToast />
+        <div className="max-w-7xl mx-auto p-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            {lang === 'en' ? 'My Registrations' : 'تسجيلاتي'}
+          </h2>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <Clock size={24} className="text-yellow-600" />
+                <span className="text-3xl font-bold text-yellow-700">{pending.length}</span>
+              </div>
+              <p className="text-sm font-medium text-yellow-800">
+                {lang === 'en' ? 'Pending' : 'قيد الانتظار'}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <Calendar size={24} className="text-blue-600" />
+                <span className="text-3xl font-bold text-blue-700">{upcoming.length}</span>
+              </div>
+              <p className="text-sm font-medium text-blue-800">
+                {lang === 'en' ? 'Upcoming' : 'القادمة'}
+              </p>
+            </div>
+
+            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <Activity size={24} className="text-green-600" />
+                <span className="text-3xl font-bold text-green-700">{ongoing.length}</span>
+              </div>
+              <p className="text-sm font-medium text-green-800">
+                {lang === 'en' ? 'Ongoing' : 'جارية'}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <CheckCircle size={24} className="text-gray-600" />
+                <span className="text-3xl font-bold text-gray-700">{past.length}</span>
+              </div>
+              <p className="text-sm font-medium text-gray-800">
+                {lang === 'en' ? 'Completed' : 'مكتملة'}
+              </p>
+            </div>
+          </div>
+
+          {/* Pending Registrations */}
+          {pending.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Clock size={24} className="text-yellow-600" />
+                {lang === 'en' ? 'Pending Approval' : 'في انتظار الموافقة'}
+              </h3>
+              <div className="space-y-4">
+                {pending.map(post => {
+                  const registration = post.registrations.find(reg => reg.playerId === user.id);
+                  return (
+                    <div key={post.id} className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-bold text-gray-800 mb-1">
+                            {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                          </h4>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {lang === 'en' ? post.content : (post.contentAr || post.content)}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                            {post.date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar size={12} />
+                                {post.date}
+                              </span>
+                            )}
+                            {post.time && (
+                              <span className="flex items-center gap-1">
+                                <Clock size={12} />
+                                {post.time}
+                              </span>
+                            )}
+                            {post.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin size={12} />
+                                {lang === 'en' ? post.location : (post.locationAr || post.location)}
+                              </span>
+                            )}
+                            <span className="px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-800 font-medium">
+                              {lang === 'en' ? 'Pending' : 'قيد الانتظار'}
+                            </span>
+                          </div>
+                          {registration.requestDate && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              {lang === 'en' ? 'Requested on: ' : 'تم الطلب في: '}
+                              {new Date(registration.requestDate).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming Sessions */}
+          {upcoming.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Calendar size={24} className="text-blue-600" />
+                {lang === 'en' ? 'Upcoming Sessions' : 'الجلسات القادمة'}
+              </h3>
+              <div className="space-y-4">
+                {upcoming.map(post => (
+                  <div key={post.id} className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                    <h4 className="font-bold text-gray-800 mb-1">
+                      {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {lang === 'en' ? post.content : (post.contentAr || post.content)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
+                      {post.date && (
+                        <span className="flex items-center gap-1 text-blue-700 font-medium">
+                          <Calendar size={12} />
+                          {post.date}
+                        </span>
+                      )}
+                      {post.time && (
+                        <span className="flex items-center gap-1 text-blue-700 font-medium">
+                          <Clock size={12} />
+                          {post.time}
+                        </span>
+                      )}
+                      {post.location && (
+                        <span className="flex items-center gap-1 text-gray-600">
+                          <MapPin size={12} />
+                          {lang === 'en' ? post.location : (post.locationAr || post.location)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ongoing Groups */}
+          {ongoing.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Activity size={24} className="text-green-600" />
+                {lang === 'en' ? 'Ongoing Training Groups' : 'المجموعات التدريبية الجارية'}
+              </h3>
+              <div className="space-y-4">
+                {ongoing.map(post => (
+                  <div key={post.id} className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                    <h4 className="font-bold text-gray-800 mb-1">
+                      {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {lang === 'en' ? post.content : (post.contentAr || post.content)}
+                    </p>
+                    {post.sessionDays && (
+                      <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
+                        <Calendar size={14} />
+                        {post.sessionDays}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Past/Completed */}
+          {past.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <CheckCircle size={24} className="text-gray-600" />
+                {lang === 'en' ? 'Completed Sessions' : 'الجلسات المكتملة'}
+              </h3>
+              <div className="space-y-4">
+                {past.map(post => (
+                  <div key={post.id} className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg opacity-75">
+                    <h4 className="font-bold text-gray-700 mb-1">
+                      {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                    </h4>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        {post.date}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-gray-300 text-gray-700 font-medium">
+                        {lang === 'en' ? 'Completed' : 'مكتمل'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rejected */}
+          {rejected.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <X size={24} className="text-red-600" />
+                {lang === 'en' ? 'Rejected Requests' : 'الطلبات المرفوضة'}
+              </h3>
+              <div className="space-y-4">
+                {rejected.map(post => {
+                  const registration = post.registrations.find(reg => reg.playerId === user.id);
+                  return (
+                    <div key={post.id} className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                      <h4 className="font-bold text-gray-800 mb-1">
+                        {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {lang === 'en' ? post.content : (post.contentAr || post.content)}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full bg-red-200 text-red-800 text-xs font-medium">
+                          {lang === 'en' ? 'Rejected' : 'مرفوض'}
+                        </span>
+                        {registration.rejectionReason && (
+                          <span className="text-xs text-gray-600">
+                            {registration.rejectionReason}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {userRegistrations.length === 0 && (
+            <div className="bg-white rounded-xl p-12 shadow-lg text-center">
+              <FileText size={64} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                {lang === 'en' ? 'No Registrations Yet' : 'لا توجد تسجيلات بعد'}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {lang === 'en' 
+                  ? 'Join training sessions from the news feed to see them here!'
+                  : 'انضم للجلسات التدريبية من صفحة الأخبار لرؤيتها هنا!'}
+              </p>
+              <button
+                onClick={() => setCurrentPage('landing')}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                {lang === 'en' ? 'Browse Training Sessions' : 'تصفح الجلسات التدريبية'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
 
   // TRAINING GROUPS PAGE (Player)
   if (currentPage === 'training-groups' && user && user.role === 'player') {
@@ -4179,6 +4477,7 @@ if (currentPage === 'landing') {
       addNotification={addNotification}
       posts={posts}
       user={user}
+      handleLogout={handleLogout}
     />
   );
 }
