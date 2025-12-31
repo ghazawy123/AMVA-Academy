@@ -2410,8 +2410,12 @@ const handleCreatePost = (e) => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <button onClick={() => setCurrentPage('landing')} className="flex items-center gap-3 hover:opacity-80 transition">
-            <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-yellow-400 font-bold text-lg">AMVA</span>
+            <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
+              <img 
+                src="/images/AMVA-logo-1.png" 
+                alt="AMVA Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <h1 className="text-lg font-bold text-blue-700">AMVA</h1>
           </button>
