@@ -903,6 +903,36 @@ export default function AMVACompleteApp() {
     ];
   });
 
+  // Posts state (for coaches/admins to create)
+const [posts, setPosts] = useState(() => {
+  const saved = localStorage.getItem('amva_posts');
+  return saved ? JSON.parse(saved) : [];
+});
+
+// Post creation modal state
+const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+const [newPost, setNewPost] = useState({
+  title: '',
+  titleAr: '',
+  content: '',
+  contentAr: '',
+  type: 'announcement', // announcement, training_session, training_group
+  visibility: 'public', // public, members
+  date: '',
+  time: '',
+  location: '',
+  locationAr: '',
+  maxParticipants: '',
+  numberOfSessions: '',
+  sessionDays: '',
+  image: null,
+  videoUrl: ''
+});
+
+// Save posts to localStorage whenever they change
+useEffect(() => {
+  localStorage.setItem('amva_posts', JSON.stringify(posts));
+}, [posts]);
   const [applications, setApplications] = useState(() => {
     const saved = localStorage.getItem('amva_applications');
     return saved ? JSON.parse(saved) : [
@@ -1492,6 +1522,72 @@ export default function AMVACompleteApp() {
     }, 5000);
   };
 
+  // Handle creating a new post
+const handleCreatePost = (e) => {
+  e.preventDefault();
+  
+  // Validation
+  if (!newPost.title || !newPost.content) {
+    showNotification(lang === 'en' ? 'Please fill in all required fields' : 'يرجى ملء جميع الحقول المطلوبة', 'error');
+    return;
+  }
+  
+  // Create post object
+  const post = {
+    id: `post${Date.now()}`,
+    title: newPost.title,
+    titleAr: newPost.titleAr || newPost.title,
+    content: newPost.content,
+    contentAr: newPost.contentAr || newPost.content,
+    type: newPost.type,
+    visibility: newPost.visibility,
+    date: newPost.date || new Date().toISOString().split('T')[0],
+    time: newPost.time,
+    location: newPost.location,
+    locationAr: newPost.locationAr || newPost.location,
+    maxParticipants: newPost.maxParticipants ? parseInt(newPost.maxParticipants) : null,
+    numberOfSessions: newPost.numberOfSessions ? parseInt(newPost.numberOfSessions) : null,
+    sessionDays: newPost.sessionDays,
+    image: newPost.image,
+    videoUrl: newPost.videoUrl,
+    author: user.name,
+    authorAr: user.nameAr || user.name,
+    createdAt: new Date().toISOString(),
+    registrations: [] // Track who joined
+  };
+  
+  // Add to posts array
+  setPosts([post, ...posts]);
+  
+  // Reset form
+  setNewPost({
+    title: '',
+    titleAr: '',
+    content: '',
+    contentAr: '',
+    type: 'announcement',
+    visibility: 'public',
+    date: '',
+    time: '',
+    location: '',
+    locationAr: '',
+    maxParticipants: '',
+    numberOfSessions: '',
+    sessionDays: '',
+    image: null,
+    videoUrl: ''
+  });
+  
+  // Close modal
+  setShowCreatePostModal(false);
+  
+  // Success notification
+  showNotification(
+    lang === 'en' ? 'Post created successfully!' : 'تم إنشاء المنشور بنجاح!',
+    'success'
+  );
+};
+  
   // ============================================
   // SEARCH & FILTER FUNCTIONS - ADVANCED
   // ============================================
@@ -2741,16 +2837,22 @@ if (currentPage === 'login') {
         <NotificationToast />
         <div className="max-w-7xl mx-auto p-4">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">{t.adminDashboard}</h2>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setCurrentPage('analytics')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 transition">
-                <BarChart3 size={18} />
-                {t.analytics}
-              </button>
-            </div>
-          </div>
+  <h2 className="text-2xl font-bold text-gray-800">{t.adminDashboard}</h2>
+  <div className="flex items-center gap-2">
+    <button 
+      onClick={() => setShowCreatePostModal(true)}
+      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 transition shadow-lg">
+      <Plus size={18} />
+      {lang === 'en' ? 'Create Post' : 'إنشاء منشور'}
+    </button>
+    <button 
+      onClick={() => setCurrentPage('analytics')}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 transition">
+      <BarChart3 size={18} />
+      {t.analytics}
+    </button>
+  </div>
+</div>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -2996,6 +3098,257 @@ if (currentPage === 'login') {
         </div>
       </div>
     );
+    {/* CREATE POST MODAL */}
+{showCreatePostModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreatePostModal(false)}>
+    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+        <h3 className="text-2xl font-bold text-gray-800">
+          {lang === 'en' ? 'Create New Post' : 'إنشاء منشور جديد'}
+        </h3>
+        <button 
+          onClick={() => setShowCreatePostModal(false)}
+          className="p-2 hover:bg-gray-100 rounded-lg transition">
+          <X size={24} />
+        </button>
+      </div>
+      
+      <form onSubmit={handleCreatePost} className="p-6 space-y-6">
+        {/* Title */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Title (English)' : 'العنوان (إنجليزي)'} *
+            </label>
+            <input
+              type="text"
+              required
+              value={newPost.title}
+              onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="Enter title..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Title (Arabic)' : 'العنوان (عربي)'}
+            </label>
+            <input
+              type="text"
+              value={newPost.titleAr}
+              onChange={(e) => setNewPost({...newPost, titleAr: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="أدخل العنوان..."
+              dir="rtl"
+            />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Content (English)' : 'المحتوى (إنجليزي)'} *
+            </label>
+            <textarea
+              required
+              rows={4}
+              value={newPost.content}
+              onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="Enter content..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Content (Arabic)' : 'المحتوى (عربي)'}
+            </label>
+            <textarea
+              rows={4}
+              value={newPost.contentAr}
+              onChange={(e) => setNewPost({...newPost, contentAr: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="أدخل المحتوى..."
+              dir="rtl"
+            />
+          </div>
+        </div>
+
+        {/* Type and Visibility */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Post Type' : 'نوع المنشور'} *
+            </label>
+            <select
+              value={newPost.type}
+              onChange={(e) => setNewPost({...newPost, type: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="announcement">{lang === 'en' ? 'Announcement' : 'إعلان'}</option>
+              <option value="training_session">{lang === 'en' ? 'Training Session' : 'جلسة تدريب'}</option>
+              <option value="training_group">{lang === 'en' ? 'Training Group' : 'مجموعة تدريب'}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Visibility' : 'الظهور'} *
+            </label>
+            <select
+              value={newPost.visibility}
+              onChange={(e) => setNewPost({...newPost, visibility: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="public">{lang === 'en' ? '🌐 Public (Everyone)' : '🌐 عام (الجميع)'}</option>
+              <option value="members">{lang === 'en' ? '🔒 Members Only' : '🔒 الأعضاء فقط'}</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Date, Time, Location (for training posts) */}
+        {(newPost.type === 'training_session' || newPost.type === 'training_group') && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  {lang === 'en' ? 'Date' : 'التاريخ'}
+                </label>
+                <input
+                  type="date"
+                  value={newPost.date}
+                  onChange={(e) => setNewPost({...newPost, date: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  {lang === 'en' ? 'Time' : 'الوقت'}
+                </label>
+                <input
+                  type="time"
+                  value={newPost.time}
+                  onChange={(e) => setNewPost({...newPost, time: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  {lang === 'en' ? 'Max Participants' : 'الحد الأقصى للمشاركين'}
+                </label>
+                <input
+                  type="number"
+                  value={newPost.maxParticipants}
+                  onChange={(e) => setNewPost({...newPost, maxParticipants: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  placeholder="e.g. 20"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  {lang === 'en' ? 'Location (English)' : 'الموقع (إنجليزي)'}
+                </label>
+                <input
+                  type="text"
+                  value={newPost.location}
+                  onChange={(e) => setNewPost({...newPost, location: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  placeholder="e.g. Main Court, Cairo"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  {lang === 'en' ? 'Location (Arabic)' : 'الموقع (عربي)'}
+                </label>
+                <input
+                  type="text"
+                  value={newPost.locationAr}
+                  onChange={(e) => setNewPost({...newPost, locationAr: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  placeholder="مثال: الملعب الرئيسي، القاهرة"
+                  dir="rtl"
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Number of Sessions & Days (for training groups) */}
+        {newPost.type === 'training_group' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                {lang === 'en' ? 'Number of Sessions' : 'عدد الجلسات'}
+              </label>
+              <input
+                type="number"
+                value={newPost.numberOfSessions}
+                onChange={(e) => setNewPost({...newPost, numberOfSessions: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                placeholder="e.g. 8"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                {lang === 'en' ? 'Session Days' : 'أيام الجلسات'}
+              </label>
+              <input
+                type="text"
+                value={newPost.sessionDays}
+                onChange={(e) => setNewPost({...newPost, sessionDays: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                placeholder="e.g. Mon, Wed, Fri"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Media */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Image URL' : 'رابط الصورة'}
+            </label>
+            <input
+              type="url"
+              value={newPost.image || ''}
+              onChange={(e) => setNewPost({...newPost, image: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              {lang === 'en' ? 'Video URL (YouTube)' : 'رابط الفيديو (يوتيوب)'}
+            </label>
+            <input
+              type="url"
+              value={newPost.videoUrl}
+              onChange={(e) => setNewPost({...newPost, videoUrl: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              placeholder="https://youtube.com/embed/..."
+            />
+          </div>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={() => setShowCreatePostModal(false)}
+            className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+            {lang === 'en' ? 'Cancel' : 'إلغاء'}
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition shadow-lg">
+            {lang === 'en' ? '✓ Create Post' : '✓ إنشاء المنشور'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
   }
 
 
