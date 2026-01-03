@@ -971,8 +971,7 @@ function LandingPage({
   );
 }
 
-
-export default function AMVACompleteApp() {
+function App() {
   // ============================================
   // STATE MANAGEMENT - ALL DATA
   // ============================================
