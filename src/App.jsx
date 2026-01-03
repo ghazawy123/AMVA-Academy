@@ -4676,9 +4676,9 @@ if (currentPage === 'login') {
           )}
         </div>
       </div>
-  </>
-  );
-}
+      </>
+    );
+  }
 
 // MANAGE NEWS PAGE (Admin/Coach)
   if (currentPage === 'news-manage' && isAdmin) {
