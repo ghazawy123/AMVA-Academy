@@ -4431,7 +4431,7 @@ if (currentPage === 'login') {
     );
   }
 
-  // MANAGE SESSIONS PAGE (Admin/Coach)
+// MANAGE SESSIONS PAGE (Admin/Coach)
   if (currentPage === 'sessions-manage' && isAdmin) {
     const trainingSessions = posts.filter(p => p.type === 'training_session' || p.type === 'training_group');
     
@@ -4448,117 +4448,131 @@ if (currentPage === 'login') {
     const ongoingGroups = trainingSessions.filter(s => !s.date && s.type === 'training_group');
 
     return (
-      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
-        <Navigation />
-        <NotificationToast />
-        <div className="max-w-7xl mx-auto p-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {lang === 'en' ? 'Manage Training Sessions' : 'إدارة الجلسات التدريبية'}
-            </h2>
-            <button
-              onClick={() => {
-                setModalType('training');
-                setNewPost({
-                  ...newPost,
-                  type: 'training',
-                  trainingType: 'training_session'
-                });
-                setShowCreatePostModal(true);
-              }}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
-              <Plus size={20} />
-              {lang === 'en' ? 'Create Session' : 'إنشاء جلسة'}
-            </button>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-blue-500">
-              <div className="flex items-center justify-between mb-2">
-                <Calendar size={24} className="text-blue-600" />
-                <span className="text-3xl font-bold text-blue-600">{upcomingSessions.length}</span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Upcoming Sessions' : 'الجلسات القادمة'}
-              </p>
+      <>
+        <CreatePostModal
+          show={showCreatePostModal}
+          onClose={() => setShowCreatePostModal(false)}
+          modalType={modalType}
+          newPost={newPost}
+          setNewPost={setNewPost}
+          onSubmit={handleCreatePost}
+          lang={lang}
+        />
+        <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+          <Navigation />
+          <NotificationToast />
+          <div className="max-w-7xl mx-auto p-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {lang === 'en' ? 'Manage Training Sessions' : 'إدارة الجلسات التدريبية'}
+              </h2>
+              <button
+                onClick={() => {
+                  setModalType('training');
+                  setNewPost({
+                    ...newPost,
+                    type: 'training',
+                    trainingType: 'training_session'
+                  });
+                  setShowCreatePostModal(true);
+                }}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                <Plus size={20} />
+                {lang === 'en' ? 'Create Session' : 'إنشاء جلسة'}
+              </button>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-green-500">
-              <div className="flex items-center justify-between mb-2">
-                <Users size={24} className="text-green-600" />
-                <span className="text-3xl font-bold text-green-600">{ongoingGroups.length}</span>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-blue-500">
+                <div className="flex items-center justify-between mb-2">
+                  <Calendar size={24} className="text-blue-600" />
+                  <span className="text-3xl font-bold text-blue-600">{upcomingSessions.length}</span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Upcoming Sessions' : 'الجلسات القادمة'}
+                </p>
               </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Active Groups' : 'المجموعات النشطة'}
-              </p>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-green-500">
+                <div className="flex items-center justify-between mb-2">
+                  <Users size={24} className="text-green-600" />
+                  <span className="text-3xl font-bold text-green-600">{ongoingGroups.length}</span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Active Groups' : 'المجموعات النشطة'}
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-gray-500">
+                <div className="flex items-center justify-between mb-2">
+                  <CheckCircle size={24} className="text-gray-600" />
+                  <span className="text-3xl font-bold text-gray-600">{pastSessions.length}</span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Past Sessions' : 'الجلسات السابقة'}
+                </p>
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-gray-500">
-              <div className="flex items-center justify-between mb-2">
-                <CheckCircle size={24} className="text-gray-600" />
-                <span className="text-3xl font-bold text-gray-600">{pastSessions.length}</span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Past Sessions' : 'الجلسات السابقة'}
-              </p>
-            </div>
-          </div>
-
-          {/* Upcoming Sessions */}
-          {upcomingSessions.length > 0 && (
-            <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <Calendar size={20} className="text-blue-600" />
-                {lang === 'en' ? 'Upcoming Sessions' : 'الجلسات القادمة'}
-              </h3>
-              <div className="space-y-3">
-                {upcomingSessions.map(session => {
-                  const registrations = session.registrations || [];
-                  const approved = registrations.filter(r => r.status === 'approved').length;
-                  
-                  return (
-                    <div key={session.id} className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 mb-1">
-                            {lang === 'en' ? session.title : (session.titleAr || session.title)}
-                          </h4>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {lang === 'en' ? session.content : (session.contentAr || session.content)}
-                          </p>
-                          <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
-                              📅 {session.date}
-                            </span>
-                            {session.time && (
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                🕐 {session.time}
+            {/* Upcoming Sessions */}
+            {upcomingSessions.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <Calendar size={20} className="text-blue-600" />
+                  {lang === 'en' ? 'Upcoming Sessions' : 'الجلسات القادمة'}
+                </h3>
+                <div className="space-y-3">
+                  {upcomingSessions.map(session => {
+                    const registrations = session.registrations || [];
+                    const approved = registrations.filter(r => r.status === 'approved').length;
+                    
+                    return (
+                      <div key={session.id} className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-800 mb-1">
+                              {lang === 'en' ? session.title : (session.titleAr || session.title)}
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {lang === 'en' ? session.content : (session.contentAr || session.content)}
+                            </p>
+                            <div className="flex flex-wrap gap-2 text-xs">
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                                📅 {session.date}
                               </span>
-                            )}
-                            {session.location && (
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                📍 {lang === 'en' ? session.location : (session.locationAr || session.location)}
+                              {session.time && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                  🕐 {session.time}
+                                </span>
+                              )}
+                              {session.location && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                  📍 {lang === 'en' ? session.location : (session.locationAr || session.location)}
+                                </span>
+                              )}
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                                👥 {approved} {lang === 'en' ? 'registered' : 'مسجل'}
                               </span>
-                            )}
-                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
-                              👥 {approved} {lang === 'en' ? 'registered' : 'مسجل'}
-                            </span>
+                            </div>
                           </div>
+                          <button
+                            onClick={() => setCurrentPage('session-attendance')}
+                            className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                            {lang === 'en' ? 'Mark Attendance' : 'تسجيل الحضور'}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => setCurrentPage('session-attendance')}
-                          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
-                          {lang === 'en' ? 'Mark Attendance' : 'تسجيل الحضور'}
-                        </button>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
           {/* Ongoing Groups */}
           {ongoingGroups.length > 0 && (
             <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
@@ -4665,7 +4679,7 @@ if (currentPage === 'login') {
     );
   }
 
-  // MANAGE NEWS PAGE (Admin/Coach)
+// MANAGE NEWS PAGE (Admin/Coach)
   if (currentPage === 'news-manage' && isAdmin) {
     // Using component-level states: editingPost, setEditingPost, showDeleteConfirm, setShowDeleteConfirm
 
@@ -4740,317 +4754,328 @@ if (currentPage === 'login') {
       : posts.filter(p => p.type === newsFilterType);
 
     return (
-      <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
-        <Navigation />
-        <NotificationToast />
-        <div className="max-w-7xl mx-auto p-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {lang === 'en' ? 'Manage News & Posts' : 'إدارة الأخبار والمنشورات'}
-            </h2>
-            <button
-              onClick={() => {
-                setEditingPost(null);
-                setModalType('post');
-                setNewPost({...newPost, type: 'post', category: 'announcement'});
-                setShowCreatePostModal(true);
-              }}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2">
-              <Plus size={20} />
-              {lang === 'en' ? 'Create New Post' : 'إنشاء منشور جديد'}
-            </button>
-          </div>
-
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <FileText size={24} className="text-blue-600" />
-                <span className="text-3xl font-bold text-blue-600">{posts.length}</span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Total Posts' : 'إجمالي المنشورات'}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Bell size={24} className="text-purple-600" />
-                <span className="text-3xl font-bold text-purple-600">
-                  {posts.filter(p => p.type === 'announcement').length}
-                </span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Announcements' : 'إعلانات'}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Calendar size={24} className="text-green-600" />
-                <span className="text-3xl font-bold text-green-600">
-                  {posts.filter(p => p.type === 'training_session').length}
-                </span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Sessions' : 'جلسات'}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <Users size={24} className="text-orange-600" />
-                <span className="text-3xl font-bold text-orange-600">
-                  {posts.filter(p => p.type === 'training_group').length}
-                </span>
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                {lang === 'en' ? 'Groups' : 'مجموعات'}
-              </p>
-            </div>
-          </div>
-
-          {/* Filter */}
-          <div className="bg-white rounded-xl p-4 shadow-lg mb-6">
-            <div className="flex items-center gap-3">
-              <Filter size={20} className="text-gray-600" />
-              <span className="font-medium text-gray-700">
-                {lang === 'en' ? 'Filter by type:' : 'تصفية حسب النوع:'}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setNewsFilterType('all')}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    newsFilterType === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}>
-                  {lang === 'en' ? 'All' : 'الكل'}
-                </button>
-                <button
-                  onClick={() => setNewsFilterType('announcement')}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    newsFilterType === 'announcement'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}>
-                  {lang === 'en' ? 'Announcements' : 'إعلانات'}
-                </button>
-                <button
-                  onClick={() => setNewsFilterType('training_session')}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    newsFilterType === 'training_session'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}>
-                  {lang === 'en' ? 'Sessions' : 'جلسات'}
-                </button>
-                <button
-                  onClick={() => setNewsFilterType('training_group')}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    newsFilterType === 'training_group'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}>
-                  {lang === 'en' ? 'Groups' : 'مجموعات'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Posts List */}
-          {filteredPosts.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 shadow-lg text-center">
-              <FileText size={64} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                {lang === 'en' ? 'No Posts Yet' : 'لا توجد منشورات بعد'}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {lang === 'en' 
-                  ? 'Create your first post to get started!'
-                  : 'أنشئ أول منشور لك للبدء!'}
-              </p>
+      <>
+        <CreatePostModal
+          show={showCreatePostModal}
+          onClose={() => setShowCreatePostModal(false)}
+          modalType={modalType}
+          newPost={newPost}
+          setNewPost={setNewPost}
+          onSubmit={handleCreatePost}
+          lang={lang}
+        />
+        <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+          <Navigation />
+          <NotificationToast />
+          <div className="max-w-7xl mx-auto p-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {lang === 'en' ? 'Manage News & Posts' : 'إدارة الأخبار والمنشورات'}
+              </h2>
               <button
-                onClick={() => setShowCreatePostModal(true)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                {lang === 'en' ? 'Create Post' : 'إنشاء منشور'}
+                onClick={() => {
+                  setEditingPost(null);
+                  setModalType('post');
+                  setNewPost({...newPost, type: 'post', category: 'announcement'});
+                  setShowCreatePostModal(true);
+                }}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2">
+                <Plus size={20} />
+                {lang === 'en' ? 'Create New Post' : 'إنشاء منشور جديد'}
               </button>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredPosts.map(post => (
-                <div key={post.id} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        {post.type === 'announcement' && (
-                          <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                            {lang === 'en' ? '📢 Announcement' : '📢 إعلان'}
-                          </span>
-                        )}
-                        {post.type === 'training_session' && (
-                          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                            {lang === 'en' ? '📅 Session' : '📅 جلسة'}
-                          </span>
-                        )}
-                        {post.type === 'training_group' && (
-                          <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
-                            {lang === 'en' ? '👥 Group' : '👥 مجموعة'}
-                          </span>
-                        )}
-                        {post.visibility === 'members' ? (
-                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                            {lang === 'en' ? '🔒 Members Only' : '🔒 للأعضاء فقط'}
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                            {lang === 'en' ? '🌐 Public' : '🌐 عام'}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h3 className="text-lg font-bold text-gray-800 mb-1">
-                        {lang === 'en' ? post.title : (post.titleAr || post.title)}
-                      </h3>
-                      
-                      <p className="text-sm text-gray-600 mb-3">
-                        {lang === 'en' ? post.content : (post.contentAr || post.content)}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-                        {post.date && (
-                          <span className="flex items-center gap-1">
-                            <Calendar size={12} />
-                            {post.date}
-                          </span>
-                        )}
-                        {post.time && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {post.time}
-                          </span>
-                        )}
-                        {post.registrations && (
-                          <span className="flex items-center gap-1">
-                            <Users size={12} />
-                            {post.registrations.filter(r => r.status === 'approved').length} {lang === 'en' ? 'registered' : 'مسجل'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEditPost(post)}
-                        className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
-                        title={lang === 'en' ? 'Edit' : 'تعديل'}>
-                        <Edit2 size={18} />
-                      </button>
-                      <button
-                        onClick={() => setShowDeleteConfirm(post.id)}
-                        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
-                        title={lang === 'en' ? 'Delete' : 'حذف'}>
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
+            {/* Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <FileText size={24} className="text-blue-600" />
+                  <span className="text-3xl font-bold text-blue-600">{posts.length}</span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Total Posts' : 'إجمالي المنشورات'}
+                </p>
+              </div>
 
-                  {/* Delete Confirmation */}
-                  {showDeleteConfirm === post.id && (
-                    <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-                      <p className="text-sm font-medium text-red-800 mb-3">
-                        {lang === 'en' 
-                          ? 'Are you sure you want to delete this post? This action cannot be undone.'
-                          : 'هل أنت متأكد من حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.'}
-                      </p>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Bell size={24} className="text-purple-600" />
+                  <span className="text-3xl font-bold text-purple-600">
+                    {posts.filter(p => p.type === 'announcement').length}
+                  </span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Announcements' : 'إعلانات'}
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Calendar size={24} className="text-green-600" />
+                  <span className="text-3xl font-bold text-green-600">
+                    {posts.filter(p => p.type === 'training_session').length}
+                  </span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Sessions' : 'جلسات'}
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Users size={24} className="text-orange-600" />
+                  <span className="text-3xl font-bold text-orange-600">
+                    {posts.filter(p => p.type === 'training_group').length}
+                  </span>
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  {lang === 'en' ? 'Groups' : 'مجموعات'}
+                </p>
+              </div>
+            </div>
+
+            {/* Filter */}
+            <div className="bg-white rounded-xl p-4 shadow-lg mb-6">
+              <div className="flex items-center gap-3">
+                <Filter size={20} className="text-gray-600" />
+                <span className="font-medium text-gray-700">
+                  {lang === 'en' ? 'Filter by type:' : 'تصفية حسب النوع:'}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setNewsFilterType('all')}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      newsFilterType === 'all'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}>
+                    {lang === 'en' ? 'All' : 'الكل'}
+                  </button>
+                  <button
+                    onClick={() => setNewsFilterType('announcement')}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      newsFilterType === 'announcement'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}>
+                    {lang === 'en' ? 'Announcements' : 'إعلانات'}
+                  </button>
+                  <button
+                    onClick={() => setNewsFilterType('training_session')}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      newsFilterType === 'training_session'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}>
+                    {lang === 'en' ? 'Sessions' : 'جلسات'}
+                  </button>
+                  <button
+                    onClick={() => setNewsFilterType('training_group')}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      newsFilterType === 'training_group'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}>
+                    {lang === 'en' ? 'Groups' : 'مجموعات'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Posts List */}
+            {filteredPosts.length === 0 ? (
+              <div className="bg-white rounded-xl p-12 shadow-lg text-center">
+                <FileText size={64} className="mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  {lang === 'en' ? 'No Posts Yet' : 'لا توجد منشورات بعد'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {lang === 'en' 
+                    ? 'Create your first post to get started!'
+                    : 'أنشئ أول منشور لك للبدء!'}
+                </p>
+                <button
+                  onClick={() => setShowCreatePostModal(true)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                  {lang === 'en' ? 'Create Post' : 'إنشاء منشور'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredPosts.map(post => (
+                  <div key={post.id} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          {post.type === 'announcement' && (
+                            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                              {lang === 'en' ? '📢 Announcement' : '📢 إعلان'}
+                            </span>
+                          )}
+                          {post.type === 'training_session' && (
+                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                              {lang === 'en' ? '📅 Session' : '📅 جلسة'}
+                            </span>
+                          )}
+                          {post.type === 'training_group' && (
+                            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                              {lang === 'en' ? '👥 Group' : '👥 مجموعة'}
+                            </span>
+                          )}
+                          {post.visibility === 'members' ? (
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                              {lang === 'en' ? '🔒 Members Only' : '🔒 للأعضاء فقط'}
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                              {lang === 'en' ? '🌐 Public' : '🌐 عام'}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <h3 className="text-lg font-bold text-gray-800 mb-1">
+                          {lang === 'en' ? post.title : (post.titleAr || post.title)}
+                        </h3>
+                        
+                        <p className="text-sm text-gray-600 mb-3">
+                          {lang === 'en' ? post.content : (post.contentAr || post.content)}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                          {post.date && (
+                            <span className="flex items-center gap-1">
+                              <Calendar size={12} />
+                              {post.date}
+                            </span>
+                          )}
+                          {post.time && (
+                            <span className="flex items-center gap-1">
+                              <Clock size={12} />
+                              {post.time}
+                            </span>
+                          )}
+                          {post.registrations && (
+                            <span className="flex items-center gap-1">
+                              <Users size={12} />
+                              {post.registrations.filter(r => r.status === 'approved').length} {lang === 'en' ? 'registered' : 'مسجل'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleDeletePost(post.id)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
-                          {lang === 'en' ? 'Yes, Delete' : 'نعم، احذف'}
+                          onClick={() => handleEditPost(post)}
+                          className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+                          title={lang === 'en' ? 'Edit' : 'تعديل'}>
+                          <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => setShowDeleteConfirm(null)}
-                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
-                          {lang === 'en' ? 'Cancel' : 'إلغاء'}
+                          onClick={() => setShowDeleteConfirm(post.id)}
+                          className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                          title={lang === 'en' ? 'Delete' : 'حذف'}>
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Delete Confirmation */}
+                    {showDeleteConfirm === post.id && (
+                      <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                        <p className="text-sm font-medium text-red-800 mb-3">
+                          {lang === 'en' 
+                            ? 'Are you sure you want to delete this post? This action cannot be undone.'
+                            : 'هل أنت متأكد من حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.'}
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDeletePost(post.id)}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                            {lang === 'en' ? 'Yes, Delete' : 'نعم، احذف'}
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(null)}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                            {lang === 'en' ? 'Cancel' : 'إلغاء'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Edit Post Modal */}
+          {showCreatePostModal && editingPost && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreatePostModal(false)}>
+              <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">
+                  {lang === 'en' ? 'Edit Post' : 'تعديل المنشور'}
+                </h3>
+                <form onSubmit={handleUpdatePost} className="space-y-4">
+                  {/* Same form fields as create post, but calls handleUpdatePost */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {lang === 'en' ? 'Title (English)' : 'العنوان (بالإنجليزية)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={newPost.title}
+                      onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {lang === 'en' ? 'Title (Arabic)' : 'العنوان (بالعربية)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={newPost.titleAr}
+                      onChange={(e) => setNewPost({...newPost, titleAr: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {lang === 'en' ? 'Content (English)' : 'المحتوى (بالإنجليزية)'}
+                    </label>
+                    <textarea
+                      value={newPost.content}
+                      onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      rows="4"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      type="submit"
+                      className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                      {lang === 'en' ? 'Update Post' : 'تحديث المنشور'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCreatePostModal(false);
+                        setEditingPost(null);
+                      }}
+                      className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                      {lang === 'en' ? 'Cancel' : 'إلغاء'}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Edit Post Modal */}
-        {showCreatePostModal && editingPost && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreatePostModal(false)}>
-            <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">
-                {lang === 'en' ? 'Edit Post' : 'تعديل المنشور'}
-              </h3>
-              <form onSubmit={handleUpdatePost} className="space-y-4">
-                {/* Same form fields as create post, but calls handleUpdatePost */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {lang === 'en' ? 'Title (English)' : 'العنوان (بالإنجليزية)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={newPost.title}
-                    onChange={(e) => setNewPost({...newPost, title: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {lang === 'en' ? 'Title (Arabic)' : 'العنوان (بالعربية)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={newPost.titleAr}
-                    onChange={(e) => setNewPost({...newPost, titleAr: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {lang === 'en' ? 'Content (English)' : 'المحتوى (بالإنجليزية)'}
-                  </label>
-                  <textarea
-                    value={newPost.content}
-                    onChange={(e) => setNewPost({...newPost, content: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    rows="4"
-                    required
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                    {lang === 'en' ? 'Update Post' : 'تحديث المنشور'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreatePostModal(false);
-                      setEditingPost(null);
-                    }}
-                    className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
-                    {lang === 'en' ? 'Cancel' : 'إلغاء'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
+      </>
     );
   }
 
