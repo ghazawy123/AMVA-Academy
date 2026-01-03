@@ -4676,6 +4676,7 @@ if (currentPage === 'login') {
           )}
         </div>
       </div>
+      </>
     );
   }
 
