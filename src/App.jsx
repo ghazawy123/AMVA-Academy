@@ -6458,7 +6458,29 @@ if (currentPage === 'landing') {
               : '💡 الصق أي رابط صورة أو يوتيوب أو إنستغرام - سنكتشفه تلقائيًا!'}
           </p>
         </div>
-        
+
+        {/* Submit Buttons */}
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={() => setShowCreatePostModal(false)}
+            className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+            {lang === 'en' ? 'Cancel' : 'إلغاء'}
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition shadow-lg">
+            {modalType === 'post' 
+              ? (lang === 'en' ? '✓ Create Post' : '✓ إنشاء منشور')
+              : (lang === 'en' ? '✓ Create Session' : '✓ إنشاء جلسة')
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
   // DEFAULT FALLBACK
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-700 to-purple-700 flex items-center justify-center p-4">
@@ -6478,3 +6500,5 @@ if (currentPage === 'landing') {
     </div>
   );
 }
+
+export default App;
