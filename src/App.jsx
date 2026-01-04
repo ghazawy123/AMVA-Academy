@@ -981,6 +981,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [lang, setLang] = useState(() => localStorage.getItem('amva_language') || 'en');
   const [user, setUser] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Core Data States
   const [users, setUsers] = useState(() => {
@@ -2567,150 +2568,349 @@ const handleCreatePost = (e) => {
     );
   };
 
-  // Navigation Component
+  // ============================================
+  // MOBILE NAVIGATION STATE
+  // ============================================
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // ============================================
+  // NAVIGATION COMPONENT - MOBILE RESPONSIVE
+  // ============================================
   const Navigation = () => (
-    <div className="bg-white border-b shadow-sm">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <button onClick={() => setCurrentPage('landing')} className="flex items-center gap-3 hover:opacity-80 transition">
-            <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
-              <img 
-                src="/images/AMVA-logo-1.png" 
-                alt="AMVA Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <h1 className="text-lg font-bold text-blue-700">AMVA</h1>
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-              className="px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm font-medium transition">
-              {lang === 'en' ? '🇪🇬 العربية' : '🇬🇧 English'}
+    <>
+      {/* Main Navigation Bar */}
+      <div className="bg-white border-b shadow-sm sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <button onClick={() => setCurrentPage('landing')} className="flex items-center gap-3 hover:opacity-80 transition">
+              <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
+                <img 
+                  src="/images/AMVA-logo-1.png" 
+                  alt="AMVA Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h1 className="text-lg font-bold text-blue-700">AMVA</h1>
             </button>
             
-            {user && (
-              <>
-                {/* Player Navigation */}
-                {user.role === 'player' && (
-                  <>
-                    <button onClick={() => setCurrentPage('landing')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
-                      title={t.home}>
-                      <Home size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('player-home')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-home' || currentPage === 'player-profile' ? 'bg-blue-100' : ''}`}
-                      title={t.profile}>
-                      <User size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('training-groups')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'training-groups' ? 'bg-blue-100' : ''}`}
-                      title={t.trainingGroups}>
-                      <Users size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('my-attendance')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'my-attendance' ? 'bg-blue-100' : ''}`}
-                      title={t.myAttendance}>
-                      <CheckCircle size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('my-registrations')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'my-registrations' ? 'bg-blue-100' : ''}`}
-                      title={t.myRegistrations}>
-                      <FileText size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('training-calendar')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'training-calendar' ? 'bg-blue-100' : ''}`}
-                      title={lang === 'en' ? 'Training Calendar' : 'تقويم التدريبات'}>
-                      <Calendar size={20} className="text-blue-700" />
-                    </button>
-                  </>
-                )}
-                
-                {/* Admin Navigation */}
-                {isAdmin && (
-                  <>
-                    <button onClick={() => setCurrentPage('landing')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
-                      title={lang === 'en' ? 'View Homepage' : 'عرض الصفحة الرئيسية'}>
-                      <Eye size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('admin-dashboard')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'admin-dashboard' ? 'bg-blue-100' : ''}`}
-                      title={t.adminDashboard}>
-                      <Home size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('applications')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg relative transition ${currentPage === 'applications' ? 'bg-blue-100' : ''}`}
-                      title={t.applications}>
-                      <FileText size={20} className="text-blue-700" />
-                      {applications.filter(a => a.status === 'pending').length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          {applications.filter(a => a.status === 'pending').length}
-                        </span>
-                      )}
-                    </button>
-                    <button onClick={() => setCurrentPage('registration-requests')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg relative transition ${currentPage === 'registration-requests' ? 'bg-blue-100' : ''}`}
-                      title={lang === 'en' ? 'Registration Requests' : 'طلبات التسجيل'}>
-                      <Users size={20} className="text-blue-700" />
-                      {(() => {
-                        const pendingCount = posts.reduce((count, post) => {
-                          const pending = post.registrations?.filter(r => r.status === 'pending').length || 0;
-                          return count + pending;
-                        }, 0);
-                        return pendingCount > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {pendingCount}
+            {/* Desktop Navigation - Hidden on Mobile */}
+            <div className="hidden lg:flex items-center gap-2">
+              <button 
+                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                className="px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm font-medium transition">
+                {lang === 'en' ? '🇪🇬 العربية' : '🇬🇧 English'}
+              </button>
+              
+              {user && (
+                <>
+                  {/* Player Navigation */}
+                  {user.role === 'player' && (
+                    <>
+                      <button onClick={() => setCurrentPage('landing')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
+                        title={t.home}>
+                        <Home size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('player-home')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-home' || currentPage === 'player-profile' ? 'bg-blue-100' : ''}`}
+                        title={t.profile}>
+                        <User size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('training-groups')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'training-groups' ? 'bg-blue-100' : ''}`}
+                        title={t.trainingGroups}>
+                        <Users size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('my-attendance')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'my-attendance' ? 'bg-blue-100' : ''}`}
+                        title={t.myAttendance}>
+                        <CheckCircle size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('my-registrations')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'my-registrations' ? 'bg-blue-100' : ''}`}
+                        title={t.myRegistrations}>
+                        <FileText size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('training-calendar')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'training-calendar' ? 'bg-blue-100' : ''}`}
+                        title={lang === 'en' ? 'Training Calendar' : 'تقويم التدريبات'}>
+                        <Calendar size={20} className="text-blue-700" />
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Admin Navigation */}
+                  {isAdmin && (
+                    <>
+                      <button onClick={() => setCurrentPage('landing')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100' : ''}`}
+                        title={lang === 'en' ? 'View Homepage' : 'عرض الصفحة الرئيسية'}>
+                        <Eye size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('admin-dashboard')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'admin-dashboard' ? 'bg-blue-100' : ''}`}
+                        title={t.adminDashboard}>
+                        <Home size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('applications')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg relative transition ${currentPage === 'applications' ? 'bg-blue-100' : ''}`}
+                        title={t.applications}>
+                        <FileText size={20} className="text-blue-700" />
+                        {applications.filter(a => a.status === 'pending').length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {applications.filter(a => a.status === 'pending').length}
                           </span>
-                        );
-                      })()}
-                    </button>
-                    <button onClick={() => setCurrentPage('sessions-manage')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'sessions-manage' ? 'bg-blue-100' : ''}`}
-                      title={t.manageSessions}>
-                      <Calendar size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('news-manage')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'news-manage' ? 'bg-blue-100' : ''}`}
-                      title={t.manageNews}>
-                      <Bell size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('groups-manage')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'groups-manage' ? 'bg-blue-100' : ''}`}
-                      title={t.manageGroups}>
-                      <Users size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('session-attendance')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'session-attendance' ? 'bg-blue-100' : ''}`}
-                      title={lang === 'en' ? 'Session Attendance' : 'حضور الجلسات'}>
-                      <CheckCircle size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('analytics')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'analytics' ? 'bg-blue-100' : ''}`}
-                      title={t.analytics}>
-                      <BarChart3 size={20} className="text-blue-700" />
-                    </button>
-                    <button onClick={() => setCurrentPage('player-management')} 
-                      className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-management' ? 'bg-blue-100' : ''}`}
-                      title={lang === 'en' ? 'Manage Players' : 'إدارة اللاعبين'}>
-                      <Users size={20} className="text-blue-700" />
-                    </button>
-                  </>
-                )}
-                
-                <button onClick={handleLogout} 
-                  className="px-4 py-2 bg-red-50 rounded-lg hover:bg-red-100 text-red-600 font-medium flex items-center gap-2 transition">
-                  <LogOut size={18} />
-                  <span className="hidden md:inline">{t.logout}</span>
+                        )}
+                      </button>
+                      <button onClick={() => setCurrentPage('registration-requests')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg relative transition ${currentPage === 'registration-requests' ? 'bg-blue-100' : ''}`}
+                        title={lang === 'en' ? 'Registration Requests' : 'طلبات التسجيل'}>
+                        <Users size={20} className="text-blue-700" />
+                        {(() => {
+                          const pendingCount = posts.reduce((count, post) => {
+                            const pending = post.registrations?.filter(r => r.status === 'pending').length || 0;
+                            return count + pending;
+                          }, 0);
+                          return pendingCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                              {pendingCount}
+                            </span>
+                          );
+                        })()}
+                      </button>
+                      <button onClick={() => setCurrentPage('sessions-manage')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'sessions-manage' ? 'bg-blue-100' : ''}`}
+                        title={t.manageSessions}>
+                        <Calendar size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('news-manage')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'news-manage' ? 'bg-blue-100' : ''}`}
+                        title={t.manageNews}>
+                        <Bell size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('groups-manage')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'groups-manage' ? 'bg-blue-100' : ''}`}
+                        title={t.manageGroups}>
+                        <Users size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('session-attendance')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'session-attendance' ? 'bg-blue-100' : ''}`}
+                        title={lang === 'en' ? 'Session Attendance' : 'حضور الجلسات'}>
+                        <CheckCircle size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('analytics')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'analytics' ? 'bg-blue-100' : ''}`}
+                        title={t.analytics}>
+                        <BarChart3 size={20} className="text-blue-700" />
+                      </button>
+                      <button onClick={() => setCurrentPage('player-management')} 
+                        className={`p-2 hover:bg-blue-50 rounded-lg transition ${currentPage === 'player-management' ? 'bg-blue-100' : ''}`}
+                        title={lang === 'en' ? 'Manage Players' : 'إدارة اللاعبين'}>
+                        <Users size={20} className="text-blue-700" />
+                      </button>
+                    </>
+                  )}
+                  
+                  <button onClick={handleLogout} 
+                    className="px-4 py-2 bg-red-50 rounded-lg hover:bg-red-100 text-red-600 font-medium flex items-center gap-2 transition">
+                    <LogOut size={18} />
+                    <span>{t.logout}</span>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button & Language Toggle */}
+            <div className="flex items-center gap-2 lg:hidden">
+              <button 
+                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                className="px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm font-medium transition">
+                {lang === 'en' ? 'ع' : 'EN'}
+              </button>
+              
+              {user && (
+                <button 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="p-2 hover:bg-blue-50 rounded-lg transition"
+                  aria-label="Toggle menu">
+                  {isMobileMenuOpen ? <X size={24} className="text-blue-700" /> : <Menu size={24} className="text-blue-700" />}
                 </button>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Slide-in Menu */}
+      {isMobileMenuOpen && user && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Menu Panel */}
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 overflow-y-auto lg:hidden">
+            <div className="p-4 border-b bg-blue-50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                    {user.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-800">{lang === 'en' ? user.name : (user.nameAr || user.name)}</p>
+                    <p className="text-sm text-gray-600">{user.role === 'admin' ? (lang === 'en' ? 'Admin' : 'مشرف') : (lang === 'en' ? 'Player' : 'لاعب')}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 hover:bg-blue-100 rounded-lg transition">
+                  <X size={24} className="text-blue-700" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-2">
+              {/* Player Menu Items */}
+              {user.role === 'player' && (
+                <>
+                  <button 
+                    onClick={() => { setCurrentPage('landing'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Home size={20} />
+                    <span className="font-medium">{t.home}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('player-home'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'player-home' || currentPage === 'player-profile' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <User size={20} />
+                    <span className="font-medium">{t.profile}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('training-groups'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'training-groups' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Users size={20} />
+                    <span className="font-medium">{t.trainingGroups}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('my-attendance'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'my-attendance' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <CheckCircle size={20} />
+                    <span className="font-medium">{t.myAttendance}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('my-registrations'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'my-registrations' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <FileText size={20} />
+                    <span className="font-medium">{t.myRegistrations}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('training-calendar'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'training-calendar' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Calendar size={20} />
+                    <span className="font-medium">{lang === 'en' ? 'Training Calendar' : 'تقويم التدريبات'}</span>
+                  </button>
+                </>
+              )}
+
+              {/* Admin Menu Items */}
+              {isAdmin && (
+                <>
+                  <button 
+                    onClick={() => { setCurrentPage('landing'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'landing' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Eye size={20} />
+                    <span className="font-medium">{lang === 'en' ? 'View Homepage' : 'عرض الصفحة'}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('admin-dashboard'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'admin-dashboard' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Home size={20} />
+                    <span className="font-medium">{t.adminDashboard}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('applications'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition relative ${currentPage === 'applications' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <FileText size={20} />
+                    <span className="font-medium">{t.applications}</span>
+                    {applications.filter(a => a.status === 'pending').length > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                        {applications.filter(a => a.status === 'pending').length}
+                      </span>
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('registration-requests'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition relative ${currentPage === 'registration-requests' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Users size={20} />
+                    <span className="font-medium">{lang === 'en' ? 'Registrations' : 'التسجيلات'}</span>
+                    {(() => {
+                      const pendingCount = posts.reduce((count, post) => {
+                        const pending = post.registrations?.filter(r => r.status === 'pending').length || 0;
+                        return count + pending;
+                      }, 0);
+                      return pendingCount > 0 && (
+                        <span className="ml-auto bg-orange-500 text-white text-xs rounded-full px-2 py-1">
+                          {pendingCount}
+                        </span>
+                      );
+                    })()}
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('sessions-manage'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'sessions-manage' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Calendar size={20} />
+                    <span className="font-medium">{t.manageSessions}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('news-manage'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'news-manage' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Bell size={20} />
+                    <span className="font-medium">{t.manageNews}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('groups-manage'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'groups-manage' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Users size={20} />
+                    <span className="font-medium">{t.manageGroups}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('session-attendance'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'session-attendance' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <CheckCircle size={20} />
+                    <span className="font-medium">{lang === 'en' ? 'Attendance' : 'الحضور'}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('analytics'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'analytics' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <BarChart3 size={20} />
+                    <span className="font-medium">{t.analytics}</span>
+                  </button>
+                  <button 
+                    onClick={() => { setCurrentPage('player-management'); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition ${currentPage === 'player-management' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}>
+                    <Users size={20} />
+                    <span className="font-medium">{lang === 'en' ? 'Manage Players' : 'إدارة اللاعبين'}</span>
+                  </button>
+                </>
+              )}
+
+              {/* Logout */}
+              <div className="pt-4 border-t mt-4">
+                <button 
+                  onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 p-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium">
+                  <LogOut size={20} />
+                  <span>{t.logout}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 
   // ============================================
@@ -4568,6 +4768,9 @@ if (currentPage === 'login') {
                 </div>
               </div>
             )}
+      </>
+    );
+  }
           {/* Ongoing Groups */}
           {ongoingGroups.length > 0 && (
             <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
@@ -4607,7 +4810,6 @@ if (currentPage === 'login') {
                           </div>
                         </div>
                       </div>
-                    </div>
                   );
                 })}
               </div>
@@ -4670,7 +4872,6 @@ if (currentPage === 'login') {
             </div>
           )}
         </div>
-      </div>
       </>
     );
   }
