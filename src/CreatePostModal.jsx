@@ -4568,8 +4568,6 @@ if (currentPage === 'login') {
                 </div>
               </div>
             )}
-          </div>
-        </div>
       </>
     );
   }
