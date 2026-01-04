@@ -2569,11 +2569,6 @@ const handleCreatePost = (e) => {
   };
 
   // ============================================
-  // MOBILE NAVIGATION STATE
-  // ============================================
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // ============================================
   // NAVIGATION COMPONENT - MOBILE RESPONSIVE
   // ============================================
   const Navigation = () => (
@@ -4768,9 +4763,6 @@ if (currentPage === 'login') {
                 </div>
               </div>
             )}
-      </>
-    );
-  }
           {/* Ongoing Groups */}
           {ongoingGroups.length > 0 && (
             <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
@@ -4810,6 +4802,7 @@ if (currentPage === 'login') {
                           </div>
                         </div>
                       </div>
+                    </div>
                   );
                 })}
               </div>
@@ -4872,6 +4865,7 @@ if (currentPage === 'login') {
             </div>
           )}
         </div>
+      </div>
       </>
     );
   }
