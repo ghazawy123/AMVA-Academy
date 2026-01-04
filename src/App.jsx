@@ -4674,7 +4674,6 @@ if (currentPage === 'login') {
               </button>
             </div>
           )}
-        </div>
       </>
     );
   }
