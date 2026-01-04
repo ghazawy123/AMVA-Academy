@@ -4608,11 +4608,10 @@ if (currentPage === 'login') {
                             )}
                             <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
                               👥 {approved} {lang === 'en' ? 'members' : 'عضو'}
-                            </span>
+                           </span>
                           </div>
                         </div>
                       </div>
-                    </div>
                   );
                 })}
               </div>
