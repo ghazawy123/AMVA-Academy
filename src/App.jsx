@@ -9,6 +9,10 @@ import {
   Target, Zap, Send, FileDown, Printer, Copy
 } from 'lucide-react';
 import CreatePostModal from './CreatePostModal';
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
+import ForgotPasswordPage from './auth/ForgotPasswordPage';
+
 
 
 // ============================================
@@ -416,8 +420,20 @@ function LandingPage({
               
               <div className="flex gap-4 justify-center flex-wrap mb-16">
                 <button 
+                  onClick={() => setCurrentPage('login')}
+                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl flex items-center gap-2">
+                  <span>🔐</span>
+                  {lang === 'en' ? 'Login' : 'تسجيل الدخول'}
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('register')}
+                  className="px-8 py-4 bg-purple-600 text-white rounded-xl font-bold text-lg hover:bg-purple-700 transition transform hover:scale-105 shadow-2xl flex items-center gap-2">
+                  <span>✨</span>
+                  {lang === 'en' ? 'Register' : 'تسجيل'}
+                </button>
+                <button 
                   onClick={() => scrollToSection('news')}
-                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
+                  className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-xl font-bold text-lg hover:bg-yellow-300 transition transform hover:scale-105 shadow-2xl">
                   {lang === 'en' ? 'Explore' : 'استكشف'} ↓
                 </button>
               </div>
@@ -982,6 +998,7 @@ function App() {
   const [lang, setLang] = useState(() => localStorage.getItem('amva_language') || 'en');
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showCreateDropdown, setShowCreateDropdown] = useState(false);
   
   // Core Data States
   const [users, setUsers] = useState(() => {
@@ -1856,23 +1873,77 @@ useEffect(() => {
   // CORE FUNCTIONS
   // ============================================
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    const foundUser = users[email];
-    if (foundUser && foundUser.password === password) {
+  // Handle Login - Updated for Auth Pages
+  const handleLogin = (email, password, rememberMe = false) => {
+    const foundUser = Object.values(users).find(u => 
+      u.email === email && u.password === password
+    );
+    
+    if (foundUser) {
       setUser(foundUser);
-      setCurrentPage(foundUser.role === 'admin' ? 'admin-dashboard' : 'player-home');
+      if (rememberMe) {
+        localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
+      }
+      
+      // Redirect based on role
+      if (foundUser.role === 'admin') {
+        setCurrentPage('admin-dashboard');
+      } else {
+        setCurrentPage('player-home');
+      }
       addNotification(t.loginSuccess, 'success');
     } else {
       addNotification(lang === 'en' ? 'Invalid credentials' : 'بيانات دخول خاطئة', 'error');
     }
   };
 
+  // Handle Register - NEW
+  const handleRegister = (newUser) => {
+    // Check if email already exists
+    const emailExists = Object.values(users).some(u => u.email === newUser.email);
+    
+    if (emailExists) {
+      addNotification(lang === 'en' ? 'Email already registered!' : 'البريد الإلكتروني مسجل بالفعل!', 'error');
+      return;
+    }
+    
+    // Add new user
+    const updatedUsers = {
+      ...users,
+      [newUser.email]: newUser
+    };
+    
+    setUsers(updatedUsers);
+    localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
+    
+    // Auto-login the new user
+    setUser(newUser);
+    setCurrentPage('player-home');
+    
+    addNotification(lang === 'en' 
+      ? 'Registration successful! Welcome to AMVA!' 
+      : 'تم التسجيل بنجاح! مرحباً بك في AMVA!', 'success');
+  };
+
+  // Handle Password Reset - NEW
+  const handleResetPassword = (email, newPassword) => {
+    const updatedUsers = { ...users };
+    const userEmail = Object.keys(updatedUsers).find(e => e === email);
+    
+    if (userEmail) {
+      updatedUsers[userEmail].password = newPassword;
+      setUsers(updatedUsers);
+      localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
+      setCurrentPage('login');
+      addNotification(lang === 'en' 
+        ? 'Password reset successful! Please login.' 
+        : 'تم إعادة تعيين كلمة المرور بنجاح! يرجى تسجيل الدخول.', 'success');
+    }
+  };
+
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('amva_remembered_user');
     setCurrentPage('landing');
     addNotification(t.logoutSuccess, 'success');
   };
@@ -3973,31 +4044,71 @@ if (currentPage === 'login') {
           <div className="flex items-center justify-between mb-6">
   <h2 className="text-2xl font-bold text-gray-800">{t.adminDashboard}</h2>
   <div className="flex items-center gap-2">
-    <button 
-      onClick={() => {
-        setModalType('post');
-        setNewPost({...newPost, type: 'post', category: 'announcement'});
-        setShowCreatePostModal(true);
-      }}
-      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2 transition shadow-lg">
-      <Plus size={18} />
-      {lang === 'en' ? 'Create Post' : 'إنشاء منشور'}
-    </button>
-    <button 
-      onClick={() => {
-        setModalType('training');
-        setNewPost({...newPost, type: 'training', trainingType: 'training_session'});
-        setShowCreatePostModal(true);
-      }}
-      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 transition shadow-lg">
-      <Plus size={18} />
-      {lang === 'en' ? 'Create Session' : 'إنشاء جلسة'}
-    </button>
+    {/* Create Dropdown */}
+    <div className="relative">
+      <button 
+        onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-green-600 text-white rounded-lg hover:from-purple-700 hover:to-green-700 font-medium flex items-center gap-2 transition shadow-lg">
+        <Plus size={18} />
+        {lang === 'en' ? 'Create' : 'إنشاء'}
+        <ChevronRight size={16} className={`transform transition-transform ${showCreateDropdown ? 'rotate-90' : ''}`} />
+      </button>
+      
+      {/* Dropdown Menu */}
+      {showCreateDropdown && (
+        <>
+          {/* Backdrop to close dropdown */}
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setShowCreateDropdown(false)}
+          />
+          
+          {/* Dropdown Content */}
+          <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-2xl border border-gray-200 min-w-[200px] z-20 overflow-hidden">
+            <button 
+              onClick={() => {
+                setModalType('post');
+                setNewPost({...newPost, type: 'post', category: 'announcement'});
+                setShowCreatePostModal(true);
+                setShowCreateDropdown(false);
+              }}
+              className="w-full px-4 py-3 text-left hover:bg-purple-50 flex items-center gap-3 transition border-b border-gray-100">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <span className="text-lg">📰</span>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">{lang === 'en' ? 'Create Post' : 'إنشاء منشور'}</p>
+                <p className="text-xs text-gray-500">{lang === 'en' ? 'News & announcements' : 'أخبار وإعلانات'}</p>
+              </div>
+            </button>
+            
+            <button 
+              onClick={() => {
+                setModalType('training');
+                setNewPost({...newPost, type: 'training', trainingType: 'training_session'});
+                setShowCreatePostModal(true);
+                setShowCreateDropdown(false);
+              }}
+              className="w-full px-4 py-3 text-left hover:bg-green-50 flex items-center gap-3 transition">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <span className="text-lg">📅</span>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">{lang === 'en' ? 'Create Session' : 'إنشاء جلسة'}</p>
+                <p className="text-xs text-gray-500">{lang === 'en' ? 'Training session or group' : 'جلسة أو مجموعة تدريب'}</p>
+              </div>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+    
+    {/* Analytics Button */}
     <button 
       onClick={() => setCurrentPage('analytics')}
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 transition">
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 transition shadow-lg">
       <BarChart3 size={18} />
-      {t.analytics}
+      <span className="hidden sm:inline">{t.analytics}</span>
     </button>
   </div>
 </div>
@@ -6378,7 +6489,47 @@ if (currentPage === 'login') {
     );
   }
   
+// ============================================
+// AUTHENTICATION PAGES
+// ============================================
+
+// LOGIN PAGE
+if (currentPage === 'login') {
+  return (
+    <LoginPage
+      onLogin={handleLogin}
+      onGoToRegister={() => setCurrentPage('register')}
+      onGoToForgotPassword={() => setCurrentPage('forgot-password')}
+      lang={lang}
+    />
+  );
+}
+
+// REGISTER PAGE
+if (currentPage === 'register') {
+  return (
+    <RegisterPage
+      onRegister={handleRegister}
+      onBackToLogin={() => setCurrentPage('login')}
+      lang={lang}
+    />
+  );
+}
+
+// FORGOT PASSWORD PAGE
+if (currentPage === 'forgot-password') {
+  return (
+    <ForgotPasswordPage
+      onResetPassword={handleResetPassword}
+      onBackToLogin={() => setCurrentPage('login')}
+      lang={lang}
+    />
+  );
+}
+
+// ============================================
 // LANDING PAGE
+// ============================================
 if (currentPage === 'landing') {
   return (
     <LandingPage
