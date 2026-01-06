@@ -354,6 +354,15 @@ function LandingPage({
         {lang === 'en' ? '🇪🇬 AR' : '🇬🇧 EN'}
       </button>
       
+      {/* TEMPORARY DEBUG - ALWAYS SHOW LOGOUT BUTTON */}
+      {user && (
+        <button
+          onClick={handleLogout}
+          className="px-6 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition shadow-lg text-sm">
+          🚪 LOGOUT
+        </button>
+      )}
+      
       {user ? (
         // Logged in - show user info, dashboard and logout
         <>
@@ -369,12 +378,6 @@ function LandingPage({
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md text-sm">
             {lang === 'en' ? 'Dashboard' : 'لوحة التحكم'}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="p-2 bg-red-50 hover:bg-red-100 rounded-lg transition"
-            title={lang === 'en' ? 'Logout' : 'تسجيل الخروج'}>
-            <LogOut size={20} className="text-red-600" />
           </button>
         </>
       ) : (
