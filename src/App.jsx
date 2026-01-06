@@ -424,6 +424,16 @@ function LandingPage({
                   className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
                   {lang === 'en' ? 'Explore' : 'استكشف'} ↓
                 </button>
+                <button 
+                  onClick={() => {
+                    if (window.confirm(lang === 'en' ? 'Reset app data? This will fix demo account issues.' : 'إعادة تعيين بيانات التطبيق؟ سيؤدي هذا إلى إصلاح مشاكل الحساب التجريبي.')) {
+                      localStorage.clear();
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-8 py-4 bg-red-600 text-white rounded-xl font-bold text-lg hover:bg-red-700 transition transform hover:scale-105 shadow-2xl">
+                  🔄 {lang === 'en' ? 'Reset App' : 'إعادة تعيين'}
+                </button>
               </div>
 
               {/* Stats */}
