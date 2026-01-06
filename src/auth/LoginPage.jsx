@@ -169,17 +169,18 @@ const LoginPage = ({ onLogin, onGoToRegister, onGoToForgotPassword, lang = 'en' 
             )}
           </button>
 
-          {/* Register Link */}
-          <div className="text-center pt-4 border-t">
-            <p className="text-gray-600">
-              {t.noAccount}{' '}
-              <button
-                type="button"
-                onClick={onGoToRegister}
-                className="text-blue-600 hover:text-blue-700 font-semibold">
-                {t.register}
-              </button>
+          {/* Register Link - PROMINENT */}
+          <div className="text-center pt-4 border-t-2 border-gray-200">
+            <p className="text-gray-700 text-base mb-3">
+              {t.noAccount}
             </p>
+            <button
+              type="button"
+              onClick={onGoToRegister}
+              className="w-full py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition shadow-lg flex items-center justify-center gap-2">
+              <UserPlus size={20} />
+              {lang === 'en' ? 'Create New Account' : 'إنشاء حساب جديد'}
+            </button>
           </div>
         </form>
 
