@@ -386,7 +386,12 @@ function LandingPage({
             {t.signIn}
           </button>
           <button 
-            onClick={() => setCurrentPage('register')}
+            onClick={() => {
+              window.open(
+                'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+                '_blank'
+              );
+            }}
             className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
             {t.applyNow}
           </button>
@@ -986,7 +991,7 @@ function App() {
   // Core Data States
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('amva_users');
-    return saved ? JSON.parse(saved) : {
+    const demoAccounts = {
       'player@demo.com': {
         id: 'p1',
         email: 'player@demo.com',
@@ -1044,6 +1049,14 @@ function App() {
         nameAr: 'مدير النظام'
       }
     };
+    
+    // Merge demo accounts with saved users (demo accounts always present)
+    if (saved) {
+      const savedUsers = JSON.parse(saved);
+      return { ...demoAccounts, ...savedUsers };
+    }
+    
+    return demoAccounts;
   });
 
   const [sessions, setSessions] = useState(() => {
