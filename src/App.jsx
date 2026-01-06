@@ -330,13 +330,8 @@ function LandingPage({
     <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
       <NotificationToast />
       
-      {/* DEBUG BANNER - TEMPORARY */}
-      <div className="fixed top-0 left-0 right-0 z-[100] bg-yellow-400 text-black px-4 py-2 text-center text-sm font-bold">
-        DEBUG: {user ? `✅ LOGGED IN as ${user.name} (${user.email})` : '❌ NOT LOGGED IN'} | Page: {currentPage}
-      </div>
-      
       {/* FLOATING HEADER - Always Visible */}
-<div className="fixed top-10 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
+<div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
   <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
       <div className="w-12 h-12 rounded-lg overflow-hidden shadow-lg">
@@ -403,7 +398,7 @@ function LandingPage({
 
       {/* SECTION 1: HERO - Only show when NOT logged in */}
       {!user && (
-        <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-24">
+        <div id="hero" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 pt-16">
           <div className="text-center px-4 max-w-5xl">
             <div className="animate-fade-in">
               <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
@@ -1863,55 +1858,37 @@ useEffect(() => {
 
   // Handle Login - Updated for Auth Pages
   const handleLogin = (email, password, rememberMe = false) => {
-    console.log('🔐 LOGIN ATTEMPT:', { email, usersCount: Object.keys(users).length });
-    
     const foundUser = Object.values(users).find(u => 
       u.email === email && u.password === password
     );
     
-    console.log('👤 FOUND USER:', foundUser ? 'YES' : 'NO');
-    
     if (foundUser) {
-      console.log('✅ LOGIN SUCCESS - Setting user and redirecting');
       setUser(foundUser);
-      
       if (rememberMe) {
         localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
       }
       
-      // Force state update by using setTimeout
-      setTimeout(() => {
-        // Redirect based on role
-        if (foundUser.role === 'admin') {
-          console.log('🎯 Redirecting to admin dashboard');
-          setCurrentPage('admin-dashboard');
-        } else {
-          console.log('🎯 Redirecting to player home');
-          setCurrentPage('player-home');
-        }
-      }, 100);
-      
+      // Redirect based on role
+      if (foundUser.role === 'admin') {
+        setCurrentPage('admin-dashboard');
+      } else {
+        setCurrentPage('player-home');
+      }
       addNotification(t.loginSuccess, 'success');
     } else {
-      console.log('❌ LOGIN FAILED - Invalid credentials');
       addNotification(lang === 'en' ? 'Invalid credentials' : 'بيانات دخول خاطئة', 'error');
     }
   };
 
   // Handle Register - NEW
   const handleRegister = (newUser) => {
-    console.log('📝 REGISTRATION ATTEMPT:', { email: newUser.email, role: newUser.role });
-    
     // Check if email already exists
     const emailExists = Object.values(users).some(u => u.email === newUser.email);
     
     if (emailExists) {
-      console.log('❌ REGISTRATION FAILED - Email exists');
       addNotification(lang === 'en' ? 'Email already registered!' : 'البريد الإلكتروني مسجل بالفعل!', 'error');
       return;
     }
-    
-    console.log('✅ REGISTRATION SUCCESS - Adding user');
     
     // Add new user
     const updatedUsers = {
@@ -1922,16 +1899,9 @@ useEffect(() => {
     setUsers(updatedUsers);
     localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
     
-    console.log('👤 Users in localStorage:', Object.keys(updatedUsers).length);
-    
     // Auto-login the new user
     setUser(newUser);
-    
-    // Force page change with setTimeout
-    setTimeout(() => {
-      console.log('🎯 Redirecting to player home');
-      setCurrentPage('player-home');
-    }, 100);
+    setCurrentPage('player-home');
     
     addNotification(lang === 'en' 
       ? 'Registration successful! Welcome to AMVA!' 
