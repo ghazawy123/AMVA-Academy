@@ -386,12 +386,7 @@ function LandingPage({
             {t.signIn}
           </button>
           <button 
-            onClick={() => {
-              window.open(
-                'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
-                '_blank'
-              );
-            }}
+            onClick={() => setCurrentPage('register')}
             className="px-5 py-2 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-500 transition shadow-md">
             {t.applyNow}
           </button>
@@ -420,20 +415,8 @@ function LandingPage({
               
               <div className="flex gap-4 justify-center flex-wrap mb-16">
                 <button 
-                  onClick={() => setCurrentPage('login')}
-                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl flex items-center gap-2">
-                  <span>🔐</span>
-                  {lang === 'en' ? 'Login' : 'تسجيل الدخول'}
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('register')}
-                  className="px-8 py-4 bg-purple-600 text-white rounded-xl font-bold text-lg hover:bg-purple-700 transition transform hover:scale-105 shadow-2xl flex items-center gap-2">
-                  <span>✨</span>
-                  {lang === 'en' ? 'Register' : 'تسجيل'}
-                </button>
-                <button 
                   onClick={() => scrollToSection('news')}
-                  className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-xl font-bold text-lg hover:bg-yellow-300 transition transform hover:scale-105 shadow-2xl">
+                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
                   {lang === 'en' ? 'Explore' : 'استكشف'} ↓
                 </button>
               </div>
