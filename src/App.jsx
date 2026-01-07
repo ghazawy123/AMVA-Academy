@@ -9,10 +9,6 @@ import {
   Target, Zap, Send, FileDown, Printer, Copy
 } from 'lucide-react';
 import CreatePostModal from './CreatePostModal';
-import LoginPage from './auth/LoginPage';
-import RegisterPage from './auth/RegisterPage';
-import ForgotPasswordPage from './auth/ForgotPasswordPage';
-
 
 
 // ============================================
@@ -423,16 +419,6 @@ function LandingPage({
                   onClick={() => scrollToSection('news')}
                   className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition transform hover:scale-105 shadow-2xl">
                   {lang === 'en' ? 'Explore' : 'استكشف'} ↓
-                </button>
-                <button 
-                  onClick={() => {
-                    if (window.confirm(lang === 'en' ? 'Reset app data? This will fix demo account issues.' : 'إعادة تعيين بيانات التطبيق؟ سيؤدي هذا إلى إصلاح مشاكل الحساب التجريبي.')) {
-                      localStorage.clear();
-                      window.location.reload();
-                    }
-                  }}
-                  className="px-8 py-4 bg-red-600 text-white rounded-xl font-bold text-lg hover:bg-red-700 transition transform hover:scale-105 shadow-2xl">
-                  🔄 {lang === 'en' ? 'Reset App' : 'إعادة تعيين'}
                 </button>
               </div>
 
@@ -1001,7 +987,7 @@ function App() {
   // Core Data States
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('amva_users');
-    const demoAccounts = {
+    return saved ? JSON.parse(saved) : {
       'player@demo.com': {
         id: 'p1',
         email: 'player@demo.com',
@@ -1059,14 +1045,6 @@ function App() {
         nameAr: 'مدير النظام'
       }
     };
-    
-    // Merge demo accounts with saved users (demo accounts always present)
-    if (saved) {
-      const savedUsers = JSON.parse(saved);
-      return { ...demoAccounts, ...savedUsers };
-    }
-    
-    return demoAccounts;
   });
 
   const [sessions, setSessions] = useState(() => {
@@ -1879,77 +1857,23 @@ useEffect(() => {
   // CORE FUNCTIONS
   // ============================================
 
-  // Handle Login - Updated for Auth Pages
-  const handleLogin = (email, password, rememberMe = false) => {
-    const foundUser = Object.values(users).find(u => 
-      u.email === email && u.password === password
-    );
-    
-    if (foundUser) {
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    const foundUser = users[email];
+    if (foundUser && foundUser.password === password) {
       setUser(foundUser);
-      if (rememberMe) {
-        localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
-      }
-      
-      // Redirect based on role
-      if (foundUser.role === 'admin') {
-        setCurrentPage('admin-dashboard');
-      } else {
-        setCurrentPage('player-home');
-      }
+      setCurrentPage(foundUser.role === 'admin' ? 'admin-dashboard' : 'player-home');
       addNotification(t.loginSuccess, 'success');
     } else {
       addNotification(lang === 'en' ? 'Invalid credentials' : 'بيانات دخول خاطئة', 'error');
     }
   };
 
-  // Handle Register - NEW
-  const handleRegister = (newUser) => {
-    // Check if email already exists
-    const emailExists = Object.values(users).some(u => u.email === newUser.email);
-    
-    if (emailExists) {
-      addNotification(lang === 'en' ? 'Email already registered!' : 'البريد الإلكتروني مسجل بالفعل!', 'error');
-      return;
-    }
-    
-    // Add new user
-    const updatedUsers = {
-      ...users,
-      [newUser.email]: newUser
-    };
-    
-    setUsers(updatedUsers);
-    localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
-    
-    // Auto-login the new user
-    setUser(newUser);
-    setCurrentPage('player-home');
-    
-    addNotification(lang === 'en' 
-      ? 'Registration successful! Welcome to AMVA!' 
-      : 'تم التسجيل بنجاح! مرحباً بك في AMVA!', 'success');
-  };
-
-  // Handle Password Reset - NEW
-  const handleResetPassword = (email, newPassword) => {
-    const updatedUsers = { ...users };
-    const userEmail = Object.keys(updatedUsers).find(e => e === email);
-    
-    if (userEmail) {
-      updatedUsers[userEmail].password = newPassword;
-      setUsers(updatedUsers);
-      localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
-      setCurrentPage('login');
-      addNotification(lang === 'en' 
-        ? 'Password reset successful! Please login.' 
-        : 'تم إعادة تعيين كلمة المرور بنجاح! يرجى تسجيل الدخول.', 'success');
-    }
-  };
-
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('amva_remembered_user');
     setCurrentPage('landing');
     addNotification(t.logoutSuccess, 'success');
   };
@@ -6495,47 +6419,7 @@ if (currentPage === 'login') {
     );
   }
   
-// ============================================
-// AUTHENTICATION PAGES
-// ============================================
-
-// LOGIN PAGE
-if (currentPage === 'login') {
-  return (
-    <LoginPage
-      onLogin={handleLogin}
-      onGoToRegister={() => setCurrentPage('register')}
-      onGoToForgotPassword={() => setCurrentPage('forgot-password')}
-      lang={lang}
-    />
-  );
-}
-
-// REGISTER PAGE
-if (currentPage === 'register') {
-  return (
-    <RegisterPage
-      onRegister={handleRegister}
-      onBackToLogin={() => setCurrentPage('login')}
-      lang={lang}
-    />
-  );
-}
-
-// FORGOT PASSWORD PAGE
-if (currentPage === 'forgot-password') {
-  return (
-    <ForgotPasswordPage
-      onResetPassword={handleResetPassword}
-      onBackToLogin={() => setCurrentPage('login')}
-      lang={lang}
-    />
-  );
-}
-
-// ============================================
 // LANDING PAGE
-// ============================================
 if (currentPage === 'landing') {
   return (
     <LandingPage
