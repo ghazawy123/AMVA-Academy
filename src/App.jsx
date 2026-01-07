@@ -984,7 +984,10 @@ function App() {
   
   const [currentPage, setCurrentPage] = useState('landing');
   const [lang, setLang] = useState(() => localStorage.getItem('amva_language') || 'en');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const remembered = localStorage.getItem('amva_remembered_user');
+    return remembered ? JSON.parse(remembered) : null;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreateDropdown, setShowCreateDropdown] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
@@ -1938,9 +1941,8 @@ useEffect(() => {
     
     if (foundUser) {
       setUser(foundUser);
-      if (rememberMe) {
-        localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
-      }
+      // Always save to localStorage so refresh doesn't log out
+      localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
       
       // Redirect based on role
       if (foundUser.role === 'admin') {
@@ -2019,6 +2021,8 @@ useEffect(() => {
   const handleWelcomeComplete = () => {
     // Auto-login the new user
     setUser(registrationData);
+    // Save to localStorage so refresh doesn't log out
+    localStorage.setItem('amva_remembered_user', JSON.stringify(registrationData));
     setCurrentPage('player-home');
     setRegistrationData(null);
     addNotification(lang === 'en' 
@@ -3091,8 +3095,16 @@ const handleCreatePost = (e) => {
             </div>
             
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center border-4 border-yellow-400">
-                <span className="text-4xl">👤</span>
+              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center border-4 border-yellow-400 overflow-hidden">
+                {user.profileImage ? (
+                  <img 
+                    src={user.profileImage} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl">👤</span>
+                )}
               </div>
               
               <div className="flex-1">
