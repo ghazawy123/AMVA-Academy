@@ -9,6 +9,10 @@ import {
   Target, Zap, Send, FileDown, Printer, Copy
 } from 'lucide-react';
 import CreatePostModal from './CreatePostModal';
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
+import ProfileCompletionPage from './auth/ProfileCompletionPage';
+import WelcomeScreen from './auth/WelcomeScreen';
 
 
 // ============================================
@@ -983,11 +987,12 @@ function App() {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+  const [registrationData, setRegistrationData] = useState(null);
   
   // Core Data States
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('amva_users');
-    return saved ? JSON.parse(saved) : {
+    const demoAccounts = {
       'player@demo.com': {
         id: 'p1',
         email: 'player@demo.com',
@@ -1045,6 +1050,14 @@ function App() {
         nameAr: 'مدير النظام'
       }
     };
+    
+    // CRITICAL: Merge demo accounts with saved users (demo accounts always present)
+    if (saved) {
+      const savedUsers = JSON.parse(saved);
+      return { ...demoAccounts, ...savedUsers };
+    }
+    
+    return demoAccounts;
   });
 
   const [sessions, setSessions] = useState(() => {
@@ -1857,15 +1870,23 @@ useEffect(() => {
   // CORE FUNCTIONS
   // ============================================
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    const foundUser = users[email];
-    if (foundUser && foundUser.password === password) {
+  const handleLogin = (email, password, rememberMe = false) => {
+    const foundUser = Object.values(users).find(u => 
+      u.email === email && u.password === password
+    );
+    
+    if (foundUser) {
       setUser(foundUser);
-      setCurrentPage(foundUser.role === 'admin' ? 'admin-dashboard' : 'player-home');
+      if (rememberMe) {
+        localStorage.setItem('amva_remembered_user', JSON.stringify(foundUser));
+      }
+      
+      // Redirect based on role
+      if (foundUser.role === 'admin') {
+        setCurrentPage('admin-dashboard');
+      } else {
+        setCurrentPage('player-home');
+      }
       addNotification(t.loginSuccess, 'success');
     } else {
       addNotification(lang === 'en' ? 'Invalid credentials' : 'بيانات دخول خاطئة', 'error');
@@ -1876,6 +1897,72 @@ useEffect(() => {
     setUser(null);
     setCurrentPage('landing');
     addNotification(t.logoutSuccess, 'success');
+  };
+
+  // Handle Registration Step 1 (Basic Info)
+  const handleRegistrationStep1 = (basicData) => {
+    setRegistrationData(basicData);
+    setCurrentPage('profile-completion');
+  };
+
+  // Handle Profile Completion Step 2
+  const handleProfileCompletion = (completeData) => {
+    // Check if email already exists
+    const emailExists = Object.values(users).some(u => u.email === completeData.email);
+    
+    if (emailExists) {
+      addNotification(lang === 'en' ? 'Email already registered!' : 'البريد الإلكتروني مسجل بالفعل!', 'error');
+      setCurrentPage('register');
+      return;
+    }
+    
+    // Create new user with all data
+    const newUser = {
+      id: 'p' + Date.now(),
+      email: completeData.email,
+      password: completeData.password,
+      role: 'player',
+      name: completeData.name,
+      nameAr: completeData.name, // Can be updated later
+      phone: completeData.phone,
+      age: completeData.age,
+      parentName: completeData.parentName || null,
+      parentPhone: completeData.parentPhone || null,
+      height: completeData.height,
+      position: completeData.position,
+      positionAr: completeData.positionAr,
+      profileImage: completeData.profileImage,
+      sessionsRemaining: 0,
+      sessionsAttended: 0,
+      paymentStatus: 'unpaid',
+      enrolledGroups: [],
+      registrations: [],
+      joinedDate: new Date().toISOString().split('T')[0]
+    };
+    
+    // Add new user to users object
+    const updatedUsers = {
+      ...users,
+      [newUser.email]: newUser
+    };
+    
+    setUsers(updatedUsers);
+    localStorage.setItem('amva_users', JSON.stringify(updatedUsers));
+    
+    // Go to welcome screen
+    setCurrentPage('welcome');
+    setRegistrationData(newUser); // Store for welcome screen
+  };
+
+  // Handle Welcome Screen Complete
+  const handleWelcomeComplete = () => {
+    // Auto-login the new user
+    setUser(registrationData);
+    setCurrentPage('player-home');
+    setRegistrationData(null);
+    addNotification(lang === 'en' 
+      ? 'Welcome to AMVA! Your account is ready!' 
+      : 'مرحباً بك في AMVA! حسابك جاهز!', 'success');
   };
 
   const addNotification = (message, type = 'info') => {
@@ -6418,6 +6505,58 @@ if (currentPage === 'login') {
       </div>
     );
   }
+  
+  // ============================================
+  // AUTHENTICATION PAGES
+  // ============================================
+
+  // LOGIN PAGE
+  if (currentPage === 'login') {
+    return (
+      <LoginPage
+        onLogin={handleLogin}
+        onGoToRegister={() => setCurrentPage('register')}
+        lang={lang}
+      />
+    );
+  }
+
+  // REGISTER PAGE (Step 1)
+  if (currentPage === 'register') {
+    return (
+      <RegisterPage
+        onRegister={handleRegistrationStep1}
+        onBackToLogin={() => setCurrentPage('login')}
+        lang={lang}
+      />
+    );
+  }
+
+  // PROFILE COMPLETION PAGE (Step 2)
+  if (currentPage === 'profile-completion') {
+    return (
+      <ProfileCompletionPage
+        onComplete={handleProfileCompletion}
+        registrationData={registrationData}
+        lang={lang}
+      />
+    );
+  }
+
+  // WELCOME SCREEN (Step 3)
+  if (currentPage === 'welcome') {
+    return (
+      <WelcomeScreen
+        playerName={registrationData?.name || 'Champion'}
+        onComplete={handleWelcomeComplete}
+        lang={lang}
+      />
+    );
+  }
+
+  // ============================================
+  // LANDING PAGE
+  // ============================================
   
 // LANDING PAGE
 if (currentPage === 'landing') {
