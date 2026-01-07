@@ -1458,10 +1458,6 @@ useEffect(() => {
   const [selectedReportType, setSelectedReportType] = useState('revenue');
   const [analyticsDateRange, setAnalyticsDateRange] = useState('all');
 
-  // Registration Flow State
-  const [registrationStep, setRegistrationStep] = useState(1);
-  const [registrationData, setRegistrationData] = useState({});
-
   // Notification State
   const [notifications, setNotifications] = useState([]);
   
