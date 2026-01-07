@@ -71,27 +71,48 @@ const ProfileCompletionPage = ({ onComplete, registrationData, lang = 'en' }) =>
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors({...errors, profileImage: lang === 'en' ? 'File size must be less than 5MB' : 'يجب أن يكون حجم الملف أقل من 5 ميجابايت'});
-        return;
-      }
-
-      // Check file type
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        setErrors({...errors, profileImage: lang === 'en' ? 'Only JPG, PNG, and WEBP formats are supported' : 'الصيغ المدعومة فقط: JPG, PNG, WEBP'});
-        return;
-      }
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setFormData({...formData, profileImage: reader.result});
-        setErrors({...errors, profileImage: null});
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file);
     }
+  };
+
+  // Handle drag & drop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  // Process image file (shared by upload and drag & drop)
+  const processImageFile = (file) => {
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors({...errors, profileImage: lang === 'en' ? 'File size must be less than 5MB' : 'يجب أن يكون حجم الملف أقل من 5 ميجابايت'});
+      return;
+    }
+
+    // Check file type
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setErrors({...errors, profileImage: lang === 'en' ? 'Only JPG, PNG, and WEBP formats are supported' : 'الصيغ المدعومة فقط: JPG, PNG, WEBP'});
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+      setFormData({...formData, profileImage: reader.result});
+      setErrors({...errors, profileImage: null});
+    };
+    reader.readAsDataURL(file);
   };
 
   // Remove image
@@ -161,7 +182,11 @@ const ProfileCompletionPage = ({ onComplete, registrationData, lang = 'en' }) =>
             </label>
             
             {!imagePreview ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition">
+              <div 
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition cursor-pointer"
+                onClick={() => document.getElementById('photo-upload').click()}>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -169,23 +194,19 @@ const ProfileCompletionPage = ({ onComplete, registrationData, lang = 'en' }) =>
                   className="hidden"
                   id="photo-upload"
                 />
-                <label htmlFor="photo-upload" className="cursor-pointer">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Camera size={32} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-gray-700 font-semibold mb-1">{t.dragDropPhoto}</p>
-                      <p className="text-xs text-gray-500">{t.photoFormats}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-                      <Upload size={18} />
-                      {t.uploadPhoto}
-                    </button>
+                <div className="flex flex-col items-center gap-3 pointer-events-none">
+                  <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Camera size={32} className="text-blue-600" />
                   </div>
-                </label>
+                  <div>
+                    <p className="text-gray-700 font-semibold mb-1">{t.dragDropPhoto}</p>
+                    <p className="text-xs text-gray-500">{t.photoFormats}</p>
+                  </div>
+                  <div className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+                    <Upload size={18} />
+                    {t.uploadPhoto}
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="relative">
