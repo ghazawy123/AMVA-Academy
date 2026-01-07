@@ -1479,7 +1479,72 @@ useEffect(() => {
   // PERSISTENCE - Save to localStorage
   // ============================================
   
-  useEffect(() => { localStorage.setItem('amva_users', JSON.stringify(users)); }, [users]);
+  // Persist data to localStorage - CRITICAL: Always preserve demo accounts
+  useEffect(() => {
+    // Define demo accounts
+    const demoAccounts = {
+      'player@demo.com': {
+        id: 'p1',
+        email: 'player@demo.com',
+        password: 'player123',
+        role: 'player',
+        name: 'Ahmed Hassan',
+        nameAr: 'أحمد حسن',
+        age: 20,
+        height: 182,
+        position: 'Setter',
+        positionAr: 'معد',
+        phone: '+20 100 123 4567',
+        sessionsRemaining: 5,
+        sessionsAttended: 3,
+        paymentStatus: 'paid',
+        enrolledGroups: ['tg1'],
+        profileImage: null,
+        registrations: [],
+        joinedDate: '2024-11-01'
+      },
+      'player2@demo.com': {
+        id: 'p2',
+        email: 'player2@demo.com',
+        password: 'player123',
+        role: 'player',
+        name: 'Mohamed Ali',
+        nameAr: 'محمد علي',
+        age: 18,
+        height: 178,
+        position: 'Outside Hitter',
+        positionAr: 'ضارب خارجي',
+        phone: '+20 101 234 5678',
+        sessionsRemaining: 8,
+        sessionsAttended: 2,
+        paymentStatus: 'paid',
+        enrolledGroups: ['tg2'],
+        profileImage: null,
+        registrations: [],
+        joinedDate: '2024-12-01'
+      },
+      'coach@demo.com': {
+        id: 'admin1',
+        email: 'coach@demo.com',
+        password: 'coach123',
+        role: 'admin',
+        name: 'Coach Ahmed Mostafa',
+        nameAr: 'المدرب أحمد مصطفى'
+      },
+      'admin@demo.com': {
+        id: 'admin2',
+        email: 'admin@demo.com',
+        password: 'admin123',
+        role: 'admin',
+        name: 'Admin User',
+        nameAr: 'مدير النظام'
+      }
+    };
+    
+    // Always merge demo accounts when saving
+    const usersToSave = { ...demoAccounts, ...users };
+    localStorage.setItem('amva_users', JSON.stringify(usersToSave));
+  }, [users]);
   useEffect(() => { localStorage.setItem('amva_sessions', JSON.stringify(sessions)); }, [sessions]);
   useEffect(() => { localStorage.setItem('amva_training_groups', JSON.stringify(trainingGroups)); }, [trainingGroups]);
   useEffect(() => { localStorage.setItem('amva_news', JSON.stringify(news)); }, [news]);
