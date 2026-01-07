@@ -1919,7 +1919,7 @@ useEffect(() => {
       password: completeData.password,
       role: 'player',
       name: completeData.name,
-      nameAr: completeData.name, // Can be updated later
+      nameAr: completeData.name,
       phone: completeData.phone,
       age: completeData.age,
       parentName: completeData.parentName || null,
@@ -1947,7 +1947,7 @@ useEffect(() => {
     
     // Go to welcome screen
     setCurrentPage('welcome');
-    setRegistrationData(newUser); // Store for welcome screen
+    setRegistrationData(newUser);
   };
 
   // Handle Welcome Screen Complete
