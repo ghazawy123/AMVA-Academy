@@ -9,6 +9,8 @@ import {
   Target, Zap, Send, FileDown, Printer, Copy
 } from 'lucide-react';
 import CreatePostModal from './CreatePostModal';
+import EditProfileModal from './EditProfileModal';
+import ManageGallery from './ManageGallery';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
 import ProfileCompletionPage from './auth/ProfileCompletionPage';
@@ -175,58 +177,77 @@ function LandingPage({
     });
   }, [posts, newsPosts, lang, user]);
 
-  const [galleryItems, setGalleryItems] = useState([
-    {
-      id: 1,
-      type: 'image',
-      title: lang === 'en' ? 'Our Founder' : 'مؤسسنا',
-      caption: lang === 'en' ? 'You are the next CHAMP' : 'أنت البطل القادم',
-      url: '/images/gallery-image-2.jpeg',
-      category: 'training'
-    },
-    {
-      id: 2,
-      type: 'image',
-      title: lang === 'en' ? 'Team Victory' : 'انتصار الفريق',
-      caption: lang === 'en' ? 'Championship celebration' : 'احتفال بالبطولة',
-      url: '/images/gallery-image-1.jpg',
-      category: 'achievements'
-    },
-    {
-      id: 3,
-      type: 'image',
-      title: lang === 'en' ? 'Awards' : 'الجوائز',
-      caption: lang === 'en' ? '1st Place Trophy' : 'كأس المركز الأول',
-      url: '/images/gallery-image-3.jpg',
-      category: 'training'
-    },
-    {
-      id: 4,
-      type: 'youtube',
-      title: lang === 'en' ? 'Simplified Volleyball E1' : 'أالكرة الطائرة المبسطة',
-      caption: lang === 'en' ? 'Serve Types' : 'انواع الإرسال',
-      url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
-      category: 'videos'
-    },
-    {
-      id: 5,
-      type: 'instagram',
-      title: lang === 'en' ? 'U15 Training Session' : 'جلسة تدريبية تحت 15 سنة',
-      caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
-      url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
-      thumbnail: '/images/instagram-trainingvideo-1.PNG',
-      category: 'videos'
-    },
-     {
-      id: 6,
-      type: 'instagram',
-      title: lang === 'en' ? 'Girls Training Session' : 'جلسة تدريبية للفتيات',
-      caption: lang === 'en' ? 'Watch on Instagram' : 'شاهد على إنستغرام',
-      url: 'https://www.instagram.com/p/C0jTBYcNcq0/',
-      thumbnail: '/images/instagram-trainingvideo-2.PNG',
-      category: 'videos'
-    }
-  ]);
+  const [galleryItems, setGalleryItems] = useState(() => {
+    const saved = localStorage.getItem('amva_gallery');
+    if (saved) return JSON.parse(saved);
+    
+    // Default gallery items
+    return [
+      {
+        id: 1,
+        type: 'image',
+        title: 'Our Founder',
+        titleAr: 'مؤسسنا',
+        caption: 'You are the next CHAMP',
+        captionAr: 'أنت البطل القادم',
+        url: '/images/gallery-image-2.jpeg',
+        category: 'training'
+      },
+      {
+        id: 2,
+        type: 'image',
+        title: 'Team Victory',
+        titleAr: 'انتصار الفريق',
+        caption: 'Championship celebration',
+        captionAr: 'احتفال بالبطولة',
+        url: '/images/gallery-image-1.jpg',
+        category: 'achievements'
+      },
+      {
+        id: 3,
+        type: 'image',
+        title: 'Awards',
+        titleAr: 'الجوائز',
+        caption: '1st Place Trophy',
+        captionAr: 'كأس المركز الأول',
+        url: '/images/gallery-image-3.jpg',
+        category: 'training'
+      },
+      {
+        id: 4,
+        type: 'youtube',
+        title: 'Simplified Volleyball E1',
+        titleAr: 'أالكرة الطائرة المبسطة',
+        caption: 'Serve Types',
+        captionAr: 'انواع الإرسال',
+        url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
+        category: 'videos'
+      },
+      {
+        id: 5,
+        type: 'instagram',
+        title: 'U15 Training Session',
+        titleAr: 'جلسة تدريبية تحت 15 سنة',
+        caption: 'Watch on Instagram',
+        captionAr: 'شاهد على إنستغرام',
+        url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
+        thumbnail: '/images/instagram-trainingvideo-1.PNG',
+        category: 'videos'
+      },
+      {
+        id: 6,
+        type: 'instagram',
+        title: 'Girls Training Session',
+        titleAr: 'جلسة تدريبية للفتيات',
+        caption: 'Watch on Instagram',
+        captionAr: 'شاهد على إنستغرام',
+        url: 'https://www.instagram.com/p/C0jTBYcNcq0/',
+        thumbnail: '/images/instagram-trainingvideo-2.PNG',
+        category: 'videos'
+      }
+    ];
+  });
+
 
   const academyInfo = {
     mission: lang === 'en' 
@@ -944,23 +965,26 @@ function LandingPage({
               </a>
             </div>
 
-            <div className="flex gap-4 justify-center flex-wrap">
-              <button 
-                onClick={() => setCurrentPage('login')}
-                className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-xl font-bold text-lg hover:bg-yellow-500 transition shadow-2xl">
-                {t.signIn}
-              </button>
-              <button 
-                onClick={() => {
-                  window.open(
-                    'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
-                    '_blank'
-                  );
-                }}
-                className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-2xl">
-                {t.applyNow}
-              </button>
-            </div>
+            {/* CTA Buttons - Only show when NOT logged in */}
+            {!user && (
+              <div className="flex gap-4 justify-center flex-wrap">
+                <button 
+                  onClick={() => setCurrentPage('login')}
+                  className="px-8 py-4 bg-yellow-400 text-blue-900 rounded-xl font-bold text-lg hover:bg-yellow-500 transition shadow-2xl">
+                  {t.signIn}
+                </button>
+                <button 
+                  onClick={() => {
+                    window.open(
+                      'https://docs.google.com/forms/d/e/1FAIpQLSeSpolCMQ9BC-wkP32g4A6_urwxZiUZrF0FyZGEVraUgL9V0w/viewform',
+                      '_blank'
+                    );
+                  }}
+                  className="px-8 py-4 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-2xl">
+                  {t.applyNow}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-white/20 pt-8 text-center">
@@ -982,7 +1006,24 @@ function App() {
   // STATE MANAGEMENT - ALL DATA
   // ============================================
   
-  const [currentPage, setCurrentPage] = useState('landing');
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('amva_current_page');
+    const rememberedUser = localStorage.getItem('amva_remembered_user');
+    
+    // If user is logged in and has a saved page, restore it
+    if (rememberedUser && savedPage) {
+      return savedPage;
+    }
+    
+    // If user is logged in but no saved page, go to their role home
+    if (rememberedUser) {
+      const user = JSON.parse(rememberedUser);
+      return user.role === 'admin' ? 'admin-dashboard' : 'player-home';
+    }
+    
+    // Not logged in - go to landing
+    return 'landing';
+  });
   const [lang, setLang] = useState(() => localStorage.getItem('amva_language') || 'en');
   const [user, setUser] = useState(() => {
     const remembered = localStorage.getItem('amva_remembered_user');
@@ -991,6 +1032,7 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCreateDropdown, setShowCreateDropdown] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   
   // Core Data States
   const [users, setUsers] = useState(() => {
@@ -1555,6 +1597,14 @@ useEffect(() => {
   useEffect(() => { localStorage.setItem('amva_registration_requests', JSON.stringify(registrationRequests)); }, [registrationRequests]);
   useEffect(() => { localStorage.setItem('amva_attendance', JSON.stringify(attendance)); }, [attendance]);
   useEffect(() => { localStorage.setItem('amva_language', lang); }, [lang]);
+  useEffect(() => { localStorage.setItem('amva_gallery', JSON.stringify(galleryItems)); }, [galleryItems]);
+  
+  // Save current page when it changes (only if user is logged in)
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('amva_current_page', currentPage);
+    }
+  }, [currentPage, user]);
 
   // ============================================
   // TRANSLATIONS - COMPLETE
@@ -1959,6 +2009,9 @@ useEffect(() => {
   const handleLogout = () => {
     setUser(null);
     setCurrentPage('landing');
+    // Clear saved page and remembered user
+    localStorage.removeItem('amva_current_page');
+    localStorage.removeItem('amva_remembered_user');
     addNotification(t.logoutSuccess, 'success');
   };
 
@@ -2028,6 +2081,40 @@ useEffect(() => {
     addNotification(lang === 'en' 
       ? 'Welcome to AMVA! Your account is ready!' 
       : 'مرحباً بك في AMVA! حسابك جاهز!', 'success');
+  };
+
+  // Handle Profile Edit Save
+  const handleProfileSave = (updatedData) => {
+    // Update user object with new data
+    const updatedUser = {
+      ...user,
+      height: updatedData.height,
+      position: updatedData.position,
+      positionAr: updatedData.positionAr,
+      profileImage: updatedData.profileImage
+    };
+    
+    // Update users state
+    const updatedUsers = {
+      ...users,
+      [user.email]: updatedUser
+    };
+    setUsers(updatedUsers);
+    
+    // Update current user
+    setUser(updatedUser);
+    
+    // Update remembered user in localStorage
+    localStorage.setItem('amva_remembered_user', JSON.stringify(updatedUser));
+    
+    // Close modal
+    setShowEditProfile(false);
+    
+    // Show success notification
+    addNotification(
+      lang === 'en' ? 'Profile updated successfully!' : 'تم تحديث الملف الشخصي بنجاح!',
+      'success'
+    );
   };
 
   const addNotification = (message, type = 'info') => {
@@ -2538,36 +2625,224 @@ const handleCreatePost = (e) => {
     };
   };
 
-  const exportAnalyticsExcel = () => {
+  const exportRevenueReport = () => {
     const revenueData = getRevenueAnalytics();
-    const playerData = getPlayerAnalytics();
+    const approvedRegistrations = registrationRequests.filter(r => r.status === 'approved');
     
-    const csvContent = [
-      'AMVA Analytics Report',
+    const csvRows = [
+      'AMVA REVENUE REPORT',
       `Generated: ${new Date().toLocaleString()}`,
       '',
-      'REVENUE SUMMARY',
-      `Total Revenue,EGP ${revenueData.totalRevenue}`,
-      `Pending Revenue,EGP ${revenueData.pendingRevenue}`,
-      `Average Transaction,EGP ${revenueData.averageTransactionValue}`,
+      'SUMMARY',
+      `Total Revenue,EGP ${revenueData.totalRevenue.toLocaleString()}`,
+      `Pending Revenue,EGP ${revenueData.pendingRevenue.toLocaleString()}`,
+      `Average Transaction,EGP ${revenueData.averageTransactionValue.toLocaleString()}`,
       `Total Transactions,${revenueData.transactionCount}`,
       '',
-      'PLAYER SUMMARY',
-      `Total Players,${playerData.totalPlayers}`,
-      `Active Players,${playerData.activePlayers}`,
-      `Inactive Players,${playerData.inactivePlayers}`,
-      `Attendance Rate,${playerData.attendanceRate}%`,
-      `Average Sessions Per Player,${playerData.averageSessionsPerPlayer}`,
-      ''
-    ].join('\n');
+      'INDIVIDUAL TRANSACTIONS',
+      'Date,Player Name,Player Email,Training Group,Amount,Payment Method,Status'
+    ];
     
+    // Add each transaction
+    approvedRegistrations.forEach(reg => {
+      const player = Object.values(users).find(u => u.email === reg.playerEmail);
+      csvRows.push([
+        reg.approvalDate || reg.requestDate,
+        player?.name || 'Unknown',
+        reg.playerEmail,
+        reg.trainingGroupName || 'N/A',
+        `EGP ${reg.amount || '0'}`,
+        reg.paymentMethod || 'N/A',
+        'Approved'
+      ].join(','));
+    });
+    
+    csvRows.push('');
+    csvRows.push('REVENUE BY MONTH');
+    csvRows.push('Month,Revenue');
+    Object.entries(revenueData.revenueByMonth).forEach(([month, amount]) => {
+      csvRows.push(`${month},EGP ${amount.toLocaleString()}`);
+    });
+    
+    csvRows.push('');
+    csvRows.push('REVENUE BY PAYMENT METHOD');
+    csvRows.push('Method,Revenue,Percentage');
+    Object.entries(revenueData.revenueByMethod).forEach(([method, amount]) => {
+      const percentage = Math.round((amount / revenueData.totalRevenue) * 100);
+      csvRows.push(`${method.replace('_', ' ')},EGP ${amount.toLocaleString()},${percentage}%`);
+    });
+    
+    csvRows.push('');
+    csvRows.push('REVENUE BY TRAINING GROUP');
+    csvRows.push('Training Group,Revenue');
+    Object.entries(revenueData.revenueByGroup)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([group, amount]) => {
+        csvRows.push(`${group},EGP ${amount.toLocaleString()}`);
+      });
+    
+    const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `AMVA_Analytics_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `AMVA_Revenue_Report_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     
-    addNotification(t.exportReport + ' ' + (lang === 'en' ? 'downloaded!' : 'تم التحميل!'), 'success');
+    addNotification(lang === 'en' ? 'Revenue report downloaded!' : 'تم تحميل تقرير الإيرادات!', 'success');
+  };
+
+  const exportPlayersReport = () => {
+    const players = Object.values(users).filter(u => u.role === 'player');
+    
+    const csvRows = [
+      'AMVA DETAILED PLAYER REPORT',
+      `Generated: ${new Date().toLocaleString()}`,
+      '',
+      'SUMMARY',
+      `Total Players,${players.length}`,
+      `Active Players,${players.filter(p => (p.sessionsRemaining || 0) > 0).length}`,
+      `Inactive Players,${players.filter(p => (p.sessionsRemaining || 0) === 0).length}`,
+      '',
+      'DETAILED PLAYER LIST',
+      'Name,Email,Age,Height (cm),Position,Phone,Join Date,Status,Sessions Purchased,Sessions Attended,Sessions Remaining,Attendance Rate,Total Revenue,Training Groups,Last Active'
+    ];
+    
+    players.forEach(player => {
+      // Calculate player metrics
+      const sessionsAttended = player.sessionsAttended || 0;
+      const sessionsPurchased = (player.sessionsAttended || 0) + (player.sessionsRemaining || 0);
+      const attendanceRate = sessionsPurchased > 0 
+        ? Math.round((sessionsAttended / sessionsPurchased) * 100) 
+        : 0;
+      
+      // Calculate total revenue from this player
+      const playerRevenue = registrationRequests
+        .filter(r => r.playerEmail === player.email && r.status === 'approved')
+        .reduce((sum, r) => {
+          const amount = parseInt(r.amount?.replace(/[^0-9]/g, '') || '0');
+          return sum + amount;
+        }, 0);
+      
+      // Get training groups
+      const playerGroups = (player.enrolledGroups || [])
+        .map(gid => {
+          const group = trainingGroups.find(g => g.id === gid);
+          return group ? group.name : gid;
+        })
+        .join('; ') || 'None';
+      
+      // Determine last active (from attendance records)
+      const playerAttendance = attendance.filter(a => a.playerId === player.id);
+      const lastActive = playerAttendance.length > 0
+        ? playerAttendance.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date
+        : player.joinedDate || 'N/A';
+      
+      const status = (player.sessionsRemaining || 0) > 0 ? 'Active' : 'Inactive';
+      
+      csvRows.push([
+        player.name || 'N/A',
+        player.email || 'N/A',
+        player.age || 'N/A',
+        player.height || 'N/A',
+        player.position || 'N/A',
+        player.phone || 'N/A',
+        player.joinedDate || 'N/A',
+        status,
+        sessionsPurchased,
+        sessionsAttended,
+        player.sessionsRemaining || 0,
+        `${attendanceRate}%`,
+        `EGP ${playerRevenue.toLocaleString()}`,
+        `"${playerGroups}"`,
+        lastActive
+      ].join(','));
+    });
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `AMVA_Players_Report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    addNotification(lang === 'en' ? 'Players report downloaded!' : 'تم تحميل تقرير اللاعبين!', 'success');
+  };
+
+  const exportTrainingReport = () => {
+    const trainingData = getTrainingAnalytics();
+    
+    const csvRows = [
+      'AMVA TRAINING ANALYTICS REPORT',
+      `Generated: ${new Date().toLocaleString()}`,
+      '',
+      'SUMMARY',
+      `Total Training Groups,${trainingData.totalGroups}`,
+      `Total Sessions,${trainingData.totalSessions}`,
+      `Average Group Size,${trainingData.averageGroupSize} players`,
+      '',
+      'TRAINING GROUPS DETAILS',
+      'Group Name,Total Players,Total Sessions,Revenue Generated,Schedule'
+    ];
+    
+    trainingGroups.forEach(group => {
+      // Count registrations for this group
+      const groupRegistrations = registrationRequests.filter(r => 
+        r.trainingGroupName === group.name && r.status === 'approved'
+      );
+      
+      const groupRevenue = groupRegistrations.reduce((sum, r) => {
+        const amount = parseInt(r.amount?.replace(/[^0-9]/g, '') || '0');
+        return sum + amount;
+      }, 0);
+      
+      const groupSessions = sessions.filter(s => 
+        s.trainingGroups?.includes(group.id)
+      ).length;
+      
+      csvRows.push([
+        group.name,
+        groupRegistrations.length,
+        groupSessions,
+        `EGP ${groupRevenue.toLocaleString()}`,
+        `"${group.schedule || 'N/A'}"`
+      ].join(','));
+    });
+    
+    csvRows.push('');
+    csvRows.push('ATTENDANCE BY DAY OF WEEK');
+    csvRows.push('Day,Total Sessions');
+    Object.entries(trainingData.attendanceByDay).forEach(([day, count]) => {
+      csvRows.push(`${day},${count}`);
+    });
+    
+    csvRows.push('');
+    csvRows.push('MOST POPULAR GROUPS (BY REGISTRATIONS)');
+    csvRows.push('Training Group,Total Registrations');
+    Object.entries(trainingData.groupPopularity)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([group, count]) => {
+        csvRows.push(`${group},${count}`);
+      });
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `AMVA_Training_Report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    addNotification(lang === 'en' ? 'Training report downloaded!' : 'تم تحميل تقرير التدريب!', 'success');
+  };
+
+  // Legacy function for backward compatibility (now just calls the appropriate export)
+  const exportAnalyticsExcel = () => {
+    if (selectedReportType === 'revenue') {
+      exportRevenueReport();
+    } else if (selectedReportType === 'players') {
+      exportPlayersReport();
+    } else if (selectedReportType === 'training') {
+      exportTrainingReport();
+    }
   };
 
   // ============================================
@@ -3126,6 +3401,16 @@ const handleCreatePost = (e) => {
                   </div>
                 </div>
               </div>
+            </div>
+            
+            {/* Edit Profile Button */}
+            <div className="mt-4">
+              <button
+                onClick={() => setShowEditProfile(true)}
+                className="w-full py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                <Edit2 size={18} />
+                {lang === 'en' ? 'Edit Profile' : 'تعديل الملف الشخصي'}
+              </button>
             </div>
           </div>
 
@@ -4069,6 +4354,22 @@ const handleCreatePost = (e) => {
           <div className="flex items-center justify-between mb-6">
   <h2 className="text-2xl font-bold text-gray-800">{t.adminDashboard}</h2>
   <div className="flex items-center gap-2">
+    {/* Edit Profile Button */}
+    <button
+      onClick={() => setShowEditProfile(true)}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 transition shadow-lg">
+      <Edit2 size={18} />
+      {lang === 'en' ? 'Edit Profile' : 'تعديل الملف'}
+    </button>
+    
+    {/* Manage Gallery Button */}
+    <button
+      onClick={() => setCurrentPage('manage-gallery')}
+      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2 transition shadow-lg">
+      <Image size={18} />
+      {lang === 'en' ? 'Manage Gallery' : 'إدارة المعرض'}
+    </button>
+    
     {/* Create Dropdown */}
     <div className="relative">
       <button 
@@ -6875,8 +7176,21 @@ if (currentPage === 'landing') {
   </div>
 )}
 
-  // DEFAULT FALLBACK
-  return (
+  // MANAGE GALLERY PAGE
+  if (currentPage === 'manage-gallery' && isAdmin) {
+    return (
+      <ManageGallery
+        galleryItems={galleryItems}
+        setGalleryItems={setGalleryItems}
+        onBack={() => setCurrentPage('admin-dashboard')}
+        addNotification={addNotification}
+        lang={lang}
+      />
+    );
+  }
+
+  // DEFAULT FALLBACK with Edit Profile Modal
+  const fallbackContent = (
     <div className="min-h-screen bg-gradient-to-br from-blue-700 to-purple-700 flex items-center justify-center p-4">
       <NotificationToast />
       <div className="text-center text-white">
@@ -6892,6 +7206,20 @@ if (currentPage === 'landing') {
         </button>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {fallbackContent}
+      {showEditProfile && user && (
+        <EditProfileModal
+          user={user}
+          onSave={handleProfileSave}
+          onClose={() => setShowEditProfile(false)}
+          lang={lang}
+        />
+      )}
+    </>
   );
 }
 
