@@ -4,7 +4,7 @@ import {
   CheckCircle, X, Plus, Edit2, Trash2, Search, Filter,
   Bell, Menu, LogOut, Home, User, Settings, TrendingUp,
   FileText, Download, Eye, Activity, BarChart3, Save,
-  Upload, Image as ImageIcon, DollarSign, AlertCircle,
+  Upload, Image, DollarSign, AlertCircle,
   ChevronLeft, ChevronRight, RefreshCw, Star, Award,
   Target, Zap, Send, FileDown, Printer, Copy
 } from 'lucide-react';
@@ -105,7 +105,8 @@ function LandingPage({
   posts = [],
   setPosts,
   user,
-  handleLogout
+  handleLogout,
+  galleryItems = []
 }) {
 
   const [activeSection, setActiveSection] = useState('hero');
@@ -176,77 +177,6 @@ function LandingPage({
       return false;
     });
   }, [posts, newsPosts, lang, user]);
-
-  const [galleryItems, setGalleryItems] = useState(() => {
-    const saved = localStorage.getItem('amva_gallery');
-    if (saved) return JSON.parse(saved);
-    
-    // Default gallery items
-    return [
-      {
-        id: 1,
-        type: 'image',
-        title: 'Our Founder',
-        titleAr: 'مؤسسنا',
-        caption: 'You are the next CHAMP',
-        captionAr: 'أنت البطل القادم',
-        url: '/images/gallery-image-2.jpeg',
-        category: 'training'
-      },
-      {
-        id: 2,
-        type: 'image',
-        title: 'Team Victory',
-        titleAr: 'انتصار الفريق',
-        caption: 'Championship celebration',
-        captionAr: 'احتفال بالبطولة',
-        url: '/images/gallery-image-1.jpg',
-        category: 'achievements'
-      },
-      {
-        id: 3,
-        type: 'image',
-        title: 'Awards',
-        titleAr: 'الجوائز',
-        caption: '1st Place Trophy',
-        captionAr: 'كأس المركز الأول',
-        url: '/images/gallery-image-3.jpg',
-        category: 'training'
-      },
-      {
-        id: 4,
-        type: 'youtube',
-        title: 'Simplified Volleyball E1',
-        titleAr: 'أالكرة الطائرة المبسطة',
-        caption: 'Serve Types',
-        captionAr: 'انواع الإرسال',
-        url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
-        category: 'videos'
-      },
-      {
-        id: 5,
-        type: 'instagram',
-        title: 'U15 Training Session',
-        titleAr: 'جلسة تدريبية تحت 15 سنة',
-        caption: 'Watch on Instagram',
-        captionAr: 'شاهد على إنستغرام',
-        url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
-        thumbnail: '/images/instagram-trainingvideo-1.PNG',
-        category: 'videos'
-      },
-      {
-        id: 6,
-        type: 'instagram',
-        title: 'Girls Training Session',
-        titleAr: 'جلسة تدريبية للفتيات',
-        caption: 'Watch on Instagram',
-        captionAr: 'شاهد على إنستغرام',
-        url: 'https://www.instagram.com/p/C0jTBYcNcq0/',
-        thumbnail: '/images/instagram-trainingvideo-2.PNG',
-        category: 'videos'
-      }
-    ];
-  });
 
 
   const academyInfo = {
@@ -1103,6 +1033,77 @@ function App() {
     }
     
     return demoAccounts;
+  });
+
+  const [galleryItems, setGalleryItems] = useState(() => {
+    const saved = localStorage.getItem('amva_gallery');
+    if (saved) return JSON.parse(saved);
+    
+    // Default gallery items
+    return [
+      {
+        id: 1,
+        type: 'image',
+        title: 'Our Founder',
+        titleAr: 'مؤسسنا',
+        caption: 'You are the next CHAMP',
+        captionAr: 'أنت البطل القادم',
+        url: '/images/gallery-image-2.jpeg',
+        category: 'training'
+      },
+      {
+        id: 2,
+        type: 'image',
+        title: 'Team Victory',
+        titleAr: 'انتصار الفريق',
+        caption: 'Championship celebration',
+        captionAr: 'احتفال بالبطولة',
+        url: '/images/gallery-image-1.jpg',
+        category: 'achievements'
+      },
+      {
+        id: 3,
+        type: 'image',
+        title: 'Awards',
+        titleAr: 'الجوائز',
+        caption: '1st Place Trophy',
+        captionAr: 'كأس المركز الأول',
+        url: '/images/gallery-image-3.jpg',
+        category: 'training'
+      },
+      {
+        id: 4,
+        type: 'youtube',
+        title: 'Simplified Volleyball E1',
+        titleAr: 'أالكرة الطائرة المبسطة',
+        caption: 'Serve Types',
+        captionAr: 'انواع الإرسال',
+        url: 'https://www.youtube.com/embed/3g-j4zUc8qk?si=GilJFV0CAN99wmQZ',
+        category: 'videos'
+      },
+      {
+        id: 5,
+        type: 'instagram',
+        title: 'U15 Training Session',
+        titleAr: 'جلسة تدريبية تحت 15 سنة',
+        caption: 'Watch on Instagram',
+        captionAr: 'شاهد على إنستغرام',
+        url: 'https://www.instagram.com/reel/CwpmagXrfrj/',
+        thumbnail: '/images/instagram-trainingvideo-1.PNG',
+        category: 'videos'
+      },
+      {
+        id: 6,
+        type: 'instagram',
+        title: 'Girls Training Session',
+        titleAr: 'جلسة تدريبية للفتيات',
+        caption: 'Watch on Instagram',
+        captionAr: 'شاهد على إنستغرام',
+        url: 'https://www.instagram.com/p/C0jTBYcNcq0/',
+        thumbnail: '/images/instagram-trainingvideo-2.PNG',
+        category: 'videos'
+      }
+    ];
   });
 
   const [sessions, setSessions] = useState(() => {
@@ -6882,6 +6883,7 @@ if (currentPage === 'landing') {
       setPosts={setPosts}
       user={user}
       handleLogout={handleLogout}
+      galleryItems={galleryItems}
     />
   );
 }
