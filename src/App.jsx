@@ -11,6 +11,8 @@ import {
 import CreatePostModal from './CreatePostModal';
 import EditProfileModal from './EditProfileModal';
 import ManageGallery from './ManageGallery';
+import PaymentPage from './PaymentPage';
+import PendingPaymentsPage from './PendingPaymentsPage';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
 import ProfileCompletionPage from './auth/ProfileCompletionPage';
@@ -1106,6 +1108,14 @@ function App() {
     ];
   });
 
+  const [pendingPayments, setPendingPayments] = useState(() => {
+    const saved = localStorage.getItem('amva_pending_payments');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
+  const [paymentRegistrationData, setPaymentRegistrationData] = useState(null);
+
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem('amva_sessions');
     return saved ? JSON.parse(saved) : [
@@ -1599,6 +1609,7 @@ useEffect(() => {
   useEffect(() => { localStorage.setItem('amva_attendance', JSON.stringify(attendance)); }, [attendance]);
   useEffect(() => { localStorage.setItem('amva_language', lang); }, [lang]);
   useEffect(() => { localStorage.setItem('amva_gallery', JSON.stringify(galleryItems)); }, [galleryItems]);
+  useEffect(() => { localStorage.setItem('amva_pending_payments', JSON.stringify(pendingPayments)); }, [pendingPayments]);
   
   // Save current page when it changes (only if user is logged in)
   useEffect(() => {
@@ -2844,6 +2855,146 @@ const handleCreatePost = (e) => {
     } else if (selectedReportType === 'training') {
       exportTrainingReport();
     }
+  };
+
+  // ============================================
+  // PAYMENT SYSTEM HANDLERS
+  // ============================================
+
+  const handlePaymentSubmit = (paymentData) => {
+    // Add payment to pending payments
+    setPendingPayments([...pendingPayments, paymentData]);
+    
+    // Update registration request status to include payment
+    setRegistrationRequests(registrationRequests.map(req => {
+      // Match by player and training group/session
+      const matches = req.playerEmail === paymentData.playerEmail && 
+        (req.trainingGroupId === paymentData.trainingGroupId || 
+         req.trainingSessionId === paymentData.trainingSessionId);
+      
+      return matches
+        ? { ...req, paymentSubmitted: true, paymentId: paymentData.id, status: 'pending_approval' }
+        : req;
+    }));
+    
+    // Close payment page
+    setShowPaymentPage(false);
+    setPaymentRegistrationData(null);
+    
+    // Show success notification
+    addNotification(
+      lang === 'en' 
+        ? 'Payment submitted successfully! Awaiting approval.' 
+        : 'تم إرسال الدفع بنجاح! في انتظار الموافقة.',
+      'success'
+    );
+    
+    // Redirect to player home
+    setCurrentPage('player-home');
+  };
+
+  const handlePaymentApprove = (paymentId) => {
+    const payment = pendingPayments.find(p => p.id === paymentId);
+    if (!payment) return;
+    
+    // Update payment status
+    setPendingPayments(pendingPayments.map(p =>
+      p.id === paymentId
+        ? {
+            ...p,
+            status: 'approved',
+            reviewedBy: user.name,
+            reviewedDate: new Date().toISOString().split('T')[0]
+          }
+        : p
+    ));
+    
+    // Update registration request status
+    setRegistrationRequests(registrationRequests.map(req =>
+      req.paymentId === paymentId
+        ? { ...req, status: 'approved', paymentStatus: 'paid' }
+        : req
+    ));
+    
+    // Update player's sessions remaining
+    const updatedUsers = { ...users };
+    const player = Object.values(updatedUsers).find(u => u.id === payment.playerId);
+    if (player) {
+      // Add 8 sessions (or get from training group)
+      player.sessionsRemaining = (player.sessionsRemaining || 0) + 8;
+      setUsers(updatedUsers);
+    }
+    
+    // Show success notification
+    addNotification(
+      lang === 'en' 
+        ? 'Payment approved successfully!' 
+        : 'تمت الموافقة على الدفع بنجاح!',
+      'success'
+    );
+  };
+
+  const handlePaymentReject = (paymentId, reason) => {
+    const payment = pendingPayments.find(p => p.id === paymentId);
+    if (!payment) return;
+    
+    // Update payment status
+    setPendingPayments(pendingPayments.map(p =>
+      p.id === paymentId
+        ? {
+            ...p,
+            status: 'rejected',
+            reviewedBy: user.name,
+            reviewedDate: new Date().toISOString().split('T')[0],
+            rejectionReason: reason
+          }
+        : p
+    ));
+    
+    // Update registration request status
+    setRegistrationRequests(registrationRequests.map(req =>
+      req.paymentId === paymentId
+        ? { ...req, status: 'pending_payment', paymentStatus: 'rejected', rejectionReason: reason }
+        : req
+    ));
+    
+    // Show notification
+    addNotification(
+      lang === 'en' 
+        ? 'Payment rejected.' 
+        : 'تم رفض الدفع.',
+      'info'
+    );
+  };
+
+  // Helper function to open payment page for a training group
+  const openPaymentPageForGroup = (group) => {
+    setPaymentRegistrationData({
+      playerId: user.id,
+      playerName: user.name,
+      playerEmail: user.email,
+      trainingGroupId: group.id,
+      trainingGroupName: lang === 'en' ? group.name : group.nameAr,
+      trainingSessionId: null,
+      trainingSessionName: null,
+      amount: group.price || 'EGP 800' // Get from group
+    });
+    setShowPaymentPage(true);
+  };
+
+  // Helper function to open payment page for a training session
+  const openPaymentPageForSession = (session) => {
+    setPaymentRegistrationData({
+      playerId: user.id,
+      playerName: user.name,
+      playerEmail: user.email,
+      trainingGroupId: null,
+      trainingGroupName: null,
+      trainingSessionId: session.id,
+      trainingSessionName: lang === 'en' ? session.title : session.titleAr,
+      amount: session.price || 'EGP 800' // Get from session
+    });
+    setShowPaymentPage(true);
   };
 
   // ============================================
@@ -4178,13 +4329,10 @@ const handleCreatePost = (e) => {
                   </div>
 
                   <button 
-                    onClick={() => {
-                      setSelectedTrainingGroup(group.id);
-                      setCurrentPage('group-details');
-                    }}
-                    className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition shadow-lg flex items-center justify-center gap-2">
-                    <Eye size={20} />
-                    {t.viewRegister}
+                    onClick={() => openPaymentPageForGroup(group)}
+                    className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-teal-600 transition shadow-lg flex items-center justify-center gap-2">
+                    <CreditCard size={20} />
+                    {lang === 'en' ? 'Register & Pay' : 'التسجيل والدفع'}
                   </button>
                 </div>
               ))}
@@ -4369,6 +4517,19 @@ const handleCreatePost = (e) => {
       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2 transition shadow-lg">
       <Image size={18} />
       {lang === 'en' ? 'Manage Gallery' : 'إدارة المعرض'}
+    </button>
+    
+    {/* Pending Payments Button */}
+    <button
+      onClick={() => setCurrentPage('pending-payments')}
+      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-medium flex items-center gap-2 transition shadow-lg relative">
+      <CreditCard size={18} />
+      {lang === 'en' ? 'Pending Payments' : 'المدفوعات المعلقة'}
+      {pendingPayments.filter(p => p.status === 'pending_approval').length > 0 && (
+        <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center font-bold">
+          {pendingPayments.filter(p => p.status === 'pending_approval').length}
+        </span>
+      )}
     </button>
     
     {/* Create Dropdown */}
@@ -7188,6 +7349,37 @@ if (currentPage === 'landing') {
         addNotification={addNotification}
         lang={lang}
       />
+    );
+  }
+
+  // PAYMENT PAGE (Player)
+  if (showPaymentPage && paymentRegistrationData) {
+    return (
+      <PaymentPage
+        registrationData={paymentRegistrationData}
+        onPaymentSubmit={handlePaymentSubmit}
+        onCancel={() => {
+          setShowPaymentPage(false);
+          setPaymentRegistrationData(null);
+        }}
+        lang={lang}
+      />
+    );
+  }
+
+  // PENDING PAYMENTS PAGE (Admin/Coach)
+  if (currentPage === 'pending-payments' && (isAdmin || user.role === 'coach')) {
+    return (
+      <>
+        <NotificationToast />
+        <PendingPaymentsPage
+          pendingPayments={pendingPayments}
+          onApprove={handlePaymentApprove}
+          onReject={handlePaymentReject}
+          onBack={() => setCurrentPage('admin-dashboard')}
+          lang={lang}
+        />
+      </>
     );
   }
 
