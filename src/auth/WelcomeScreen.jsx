@@ -20,7 +20,7 @@ const WelcomeScreen = ({ playerName, onComplete, lang = 'en' }) => {
   }, [onComplete]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-purple-700 to-pink-600 flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-500 to-yellow-400 flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="text-center max-w-2xl">
         {/* Success Animation */}
         <div className="mb-8 relative">

@@ -69,10 +69,10 @@ const LoginPage = ({ onLogin, onGoToRegister, lang = 'en' }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 to-purple-700 flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 to-yellow-500 flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white text-center">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-yellow-400 p-8 text-white text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
             <div className="w-16 h-16 rounded-lg overflow-hidden shadow-lg bg-white">
               <img 
@@ -153,7 +153,7 @@ const LoginPage = ({ onLogin, onGoToRegister, lang = 'en' }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold hover:from-blue-700 hover:to-purple-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-900 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {isSubmitting ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
