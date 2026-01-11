@@ -239,35 +239,19 @@ function LandingPage({
       return;
     }
     
-    // Create registration request
-    const registration = {
+    // Redirect to payment page with training info
+    setPaymentRegistrationData({
       playerId: user.id,
       playerName: user.name,
-      playerNameAr: user.nameAr || user.name,
       playerEmail: user.email,
-      status: 'pending', // pending, approved, rejected
-      requestDate: new Date().toISOString(),
-      approvedBy: null,
-      approvedDate: null,
-      rejectionReason: null
-    };
-    
-    // Update the post with new registration
-    const updatedPosts = posts.map(p => {
-      if (p.id === post.id) {
-        return {
-          ...p,
-          registrations: [...(p.registrations || []), registration]
-        };
-      }
-      return p;
+      trainingGroupId: post.trainingGroupId || null,
+      trainingGroupName: lang === 'en' ? post.title : post.titleAr,
+      trainingSessionId: post.id,
+      trainingSessionName: lang === 'en' ? post.title : post.titleAr,
+      amount: post.price || post.amount || 'EGP 800' // Get price from post
     });
-    
-    setPosts(updatedPosts);
-    
-    addNotification(
-      lang === 'en' 
-        ? 'Join request sent successfully! Wait for approval from coaches.' 
+    setShowPaymentPage(true);
+  }; 
         : 'تم إرسال طلب الانضمام بنجاح! انتظر الموافقة من المدربين.',
       'success'
     );
@@ -2969,6 +2953,10 @@ const handleCreatePost = (e) => {
 
   // Helper function to open payment page for a training group
   const openPaymentPageForGroup = (group) => {
+    console.log('🔵 openPaymentPageForGroup called with group:', group);
+    console.log('🔵 user:', user);
+    console.log('🔵 Setting payment data...');
+    
     setPaymentRegistrationData({
       playerId: user.id,
       playerName: user.name,
@@ -2979,7 +2967,10 @@ const handleCreatePost = (e) => {
       trainingSessionName: null,
       amount: group.price || 'EGP 800' // Get from group
     });
+    
+    console.log('🔵 Setting showPaymentPage to true...');
     setShowPaymentPage(true);
+    console.log('🔵 Done!');
   };
 
   // Helper function to open payment page for a training session
@@ -4329,7 +4320,10 @@ const handleCreatePost = (e) => {
                   </div>
 
                   <button 
-                    onClick={() => openPaymentPageForGroup(group)}
+                    onClick={() => {
+                      alert('Button clicked! Group: ' + group.name);
+                      openPaymentPageForGroup(group);
+                    }}
                     className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-teal-600 transition shadow-lg flex items-center justify-center gap-2">
                     <CreditCard size={20} />
                     {lang === 'en' ? 'Register & Pay' : 'التسجيل والدفع'}
